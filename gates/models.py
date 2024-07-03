@@ -15,6 +15,7 @@ class Gate(base_models.BaseModel):
     levels: int = fields.IntField(default=4)
     location: str = fields.TextField()
     boss: Monster | None = fields.OneToOneField('monsters.Monster', related_name="gate", null=True)
+    joins: bool = fields.BooleanField(default=True)
 
 
 class MonsterGateMembership(base_models.BaseModel):
