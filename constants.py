@@ -1,6 +1,6 @@
-from enum import Enum
+from enum import IntEnum
 
-class MonsterClasses(Enum):
+class MonsterClasses(IntEnum):
     SLIME = 1
     DRAGON = 2
     BEAST = 3
@@ -12,7 +12,7 @@ class MonsterClasses(Enum):
     MATERIAL = 9
     BOSS = 10
 
-class StatTypes(Enum):
+class StatTypes(IntEnum):
     HP = 1
     MP = 2
     ATK = 3
@@ -21,6 +21,6 @@ class StatTypes(Enum):
     INT = 6
     WLD = 7
 
-class MonsterGenders(Enum):
+class MonsterGenders(IntEnum):
     FEMALE = 1
     MALE = 2
