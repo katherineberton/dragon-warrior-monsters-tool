@@ -1,8 +1,7 @@
 from __future__ import annotations
-
+from enum import IntEnum
 from tortoise import fields
 
-import constants
 import base_models
 from typing import TYPE_CHECKING
 
@@ -10,13 +9,28 @@ if TYPE_CHECKING:
     from base_models import User
     from breeding.models import BreedingPlan
 
+class MonsterGenders(IntEnum):
+    FEMALE = 1
+    MALE = 2
+
+class MonsterClasses(IntEnum):
+    SLIME = 1
+    DRAGON = 2
+    BEAST = 3
+    BIRD = 4
+    PLANT = 5
+    BUG = 6
+    DEVIL = 7
+    ZOMBIE = 8
+    MATERIAL = 9
+    BOSS = 10
 
 class Monster(base_models.BaseModel):
     """Real monsters in the game. Monsters become "real" if a user catches them or if they are the catchable boss of a travelers gate."""
     category: MonsterSpecies = fields.ForeignKeyField('monsters.MonsterSpecies', related_name="monsters")
     user: User | None = fields.ForeignKeyField('models.User', related_name="monsters", null=True)
     name: str | None = fields.CharField(max_length=255, null=True)
-    gender: constants.MonsterGenders = fields.SmallIntEnumField(constants.MonsterGenders, default=constants.MonsterGenders.FEMALE)
+    gender: MonsterGenders = fields.SmallIntEnumField(MonsterGenders, default=MonsterGenders.FEMALE)
     level: int | None = fields.IntField(null=True)
     bred: bool = fields.BooleanField(default=False)
     breeding_level: int | None = fields.IntField(null=True)
@@ -28,7 +42,7 @@ class MonsterSpecies(base_models.BaseModel):
     """Monster species."""
     name: str = fields.CharField(max_length=255)
     slug: str = fields.CharField(max_length=255)
-    monster_class: constants.MonsterClasses = fields.SmallIntEnumField(constants.MonsterClasses, default=constants.MonsterClasses.SLIME)
+    monster_class: MonsterClasses = fields.SmallIntEnumField(MonsterClasses, default=MonsterClasses.SLIME)
 
 
 class MonsterStat(base_models.BaseModel):

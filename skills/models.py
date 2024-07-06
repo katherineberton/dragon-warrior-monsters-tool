@@ -16,6 +16,7 @@ class Skill(base_models.BaseModel):
     slug: str = fields.CharField(max_length=255)
     base_level: Skill = fields.ForeignKeyField('skills.Skill', related_name='higher_levels')
     level: int = fields.IntField(default=1)
+    required_monster_level: int = fields.IntField()
     description: str | None = fields.TextField(null=True)
     combined: bool = fields.BooleanField(default=False)
 
@@ -28,6 +29,6 @@ class SkillStatRequirement(base_models.BaseModel):
 
 
 class SpeciesSkill(base_models.BaseModel):
-    """A special attack automatically learned by a species at a level."""
+    """A special attack automatically learned by a species."""
     monster_species: MonsterSpecies = fields.ForeignKeyField('models.MonsterSpecies', related_name='species_skills')
     skill: Skill = fields.ForeignKeyField('skills.Skill', related_name="species_skills")
