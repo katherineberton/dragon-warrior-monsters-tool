@@ -1,5 +1,5 @@
 from __future__ import annotations
-from enum import IntEnum
+import enum
 from tortoise import fields
 
 import base_models
@@ -8,12 +8,13 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from base_models import User
     from breeding.models import BreedingPlan
+    from gates.models import Gate
 
-class MonsterGenders(IntEnum):
+class MonsterGenders(enum.IntEnum):
     FEMALE = 1
     MALE = 2
 
-class MonsterClasses(IntEnum):
+class MonsterClasses(enum.IntEnum):
     SLIME = 1
     DRAGON = 2
     BEAST = 3
@@ -36,6 +37,7 @@ class Monster(base_models.BaseModel):
     breeding_level: int | None = fields.IntField(null=True)
     breeding_plan: BreedingPlan | None = fields.ForeignKeyField('breeding.BreedingPlan', related_name="monsters", null=True)
     stats: MonsterStat = fields.OneToOneField('monsters.MonsterStat', related_name="monster", null=True)
+    boss_of: Gate | None = fields.ForeignKeyField('gates.Gate', related_name="boss")
 
 
 class MonsterSpecies(base_models.BaseModel):

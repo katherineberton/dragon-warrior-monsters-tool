@@ -1,6 +1,6 @@
-from enum import IntEnum
+import enum
 
-class StatTypes(IntEnum):
+class StatTypes(enum.IntEnum):
     HP = 1
     MP = 2
     ATK = 3

@@ -20,8 +20,8 @@ class BreedingPlan(base_models.BaseModel):
 
 class BreedingEvent(base_models.BaseModel):
     """A breeding pair initiated to achieve a breeding plan."""
-    male: Monster = fields.ForeignKeyField('monsters.Monster', related_name='breeding_plans') # reverse relationship breeding_steps
-    female: Monster = fields.ForeignKeyField('monsters.Monster', related_name='breeding_plans')# reverse relationship breeding_steps
+    male: Monster = fields.ForeignKeyField('monsters.Monster', related_name='breeding_plans')
+    female: Monster = fields.ForeignKeyField('monsters.Monster', related_name='breeding_plans')
     pedigree: constants.MonsterGenders = fields.SmallIntEnumField(constants.MonsterGenders)
 
     @property

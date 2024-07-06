@@ -1,11 +1,17 @@
 from __future__ import annotations
-
+import enum
 from tortoise import fields
 import base_models
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from monsters.models import Monster, MonsterSpecies
+    from monsters.models import Monster
+
+
+class CatchableType(enum.IntEnum):
+    ALWAYS = 1
+    NEVER = 2
+    SUBJECT_TO_TREATS = 3
 
 class Gate(base_models.BaseModel):
     """A travelers gate through which monsters can be fought and collected."""
@@ -13,9 +19,7 @@ class Gate(base_models.BaseModel):
     slug: str = fields.CharField(max_length=255)
     levels: int = fields.IntField(default=4)
     location: str = fields.TextField()
-    boss: MonsterSpecies | None = fields.OneToOneField('monsters.MonsterSpecies', related_name="gate", null=True)
-    catchable_boss: Monster | None = fields.OneToOneField('monsters.Monster', related_name="gate", null=True)
-    guaranteed_catchable: bool = fields.BooleanField(default=True)
+    catchable_boss: CatchableType = fields.SmallIntEnumField(CatchableType, default=CatchableType.ALWAYS)
 
 
 class MonsterGateMembership(base_models.BaseModel):
