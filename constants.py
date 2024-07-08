@@ -1,5 +1,10 @@
 import enum
 
+
+class MonsterGenders(enum.IntEnum):
+    FEMALE = 1
+    MALE = 2
+    
 class StatTypes(enum.IntEnum):
     HP = 1
     MP = 2

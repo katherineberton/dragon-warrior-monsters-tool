@@ -11,6 +11,14 @@ TORTOISE_ORM = {
         "default": DATABASE_URL
     },
     "apps": {
+        "models": {
+            "models": ["models", "aerich.models"],
+            "default_connection": "default",
+        },
+        "aerich": {
+            "models": ["aerich.models"],
+            "default_connection": "default",
+        },
         "monsters": {
             "models": ["monsters.models", "aerich.models"],
             "default_connection": "default",
@@ -26,6 +34,6 @@ TORTOISE_ORM = {
         "breeding": {
             "models": ["breeding.models", "aerich.models"],
             "default_connection": "default",
-        }
+        },
     },
 }

@@ -1,28 +1,28 @@
 from __future__ import annotations
 
 from tortoise import fields
-import base_models
+import models
 import constants
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from monsters.models import Monster
+    from monsters.models import MonsterSpecies, Monster
 
 
-class BreedingPlan(base_models.BaseModel):
+class BreedingPlan(models.BaseModel):
     """A plan with a target monster species for users to assign their monsters to."""
-    target: Monster = fields.ForeignKeyField('monsters.Monster', related_name='breeding_plans')
+    target: MonsterSpecies = fields.OneToOneField('monsters.MonsterSpecies', related_name='breeding_plan')
     target_level: int | None = fields.IntField(null=True)
 
     def get_shortest_path(self):
         """From a user's current set of monsters, assigned or unassigned, get the shortest combination of monsters required to achieve it."""
         # This algorithm is going to be somethin else
 
-class BreedingEvent(base_models.BaseModel):
+class BreedingEvent(models.BaseModel):
     """A breeding pair initiated to achieve a breeding plan."""
-    male: Monster = fields.ForeignKeyField('monsters.Monster', related_name='breeding_plans')
-    female: Monster = fields.ForeignKeyField('monsters.Monster', related_name='breeding_plans')
-    pedigree: constants.MonsterGenders = fields.SmallIntEnumField(constants.MonsterGenders)
+    male: Monster = fields.ForeignKeyField('monsters.Monster', related_name='m_breeding_event')
+    female: Monster = fields.ForeignKeyField('monsters.Monster', related_name='f_breeding_event')
+    pedigree: constants.MonsterGenders = fields.SmallIntField(constants.MonsterGenders)
 
     @property
     def pedigree_id(self):
