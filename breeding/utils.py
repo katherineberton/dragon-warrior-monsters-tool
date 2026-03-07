@@ -36,13 +36,13 @@ def _get_recipes(
 ) -> list[Recipe]:
     """Get the breeding recipes for the given pedigree and mate."""
     if isinstance(pedigree, Species) and isinstance(mate, Species):
-        return get_species_species_recipe(pedigree, mate)
+        return _get_species_species_recipe(pedigree, mate)
     if isinstance(pedigree, Species) and isinstance(mate, MonsterFamily):
-        return get_species_family_recipe(pedigree, mate)
+        return _get_species_family_recipe(pedigree, mate)
     if isinstance(pedigree, MonsterFamily) and isinstance(mate, Species):
-        return get_family_species_recipe(pedigree, mate)
+        return _get_family_species_recipe(pedigree, mate)
     if isinstance(pedigree, MonsterFamily) and isinstance(mate, MonsterFamily):
-        return get_family_family_recipe(pedigree, mate)
+        return _get_family_family_recipe(pedigree, mate)
     return []
 
 
@@ -59,7 +59,7 @@ def _get_breeding_partner(partner: Species | MonsterFamily) -> int | MonsterFami
 recipes = Recipes()
 
 
-def get_species_species_recipe(
+def _get_species_species_recipe(
     pedigree: Species,
     mate: Species,
 ) -> list[Recipe]:
@@ -75,7 +75,7 @@ def get_species_species_recipe(
     )
 
 
-def get_species_family_recipe(
+def _get_species_family_recipe(
     pedigree: Species,
     mate: MonsterFamily,
 ) -> list[Recipe]:
@@ -91,7 +91,7 @@ def get_species_family_recipe(
     )
 
 
-def get_family_species_recipe(
+def _get_family_species_recipe(
     pedigree: MonsterFamily,
     mate: Species,
 ) -> list[Recipe]:
@@ -107,7 +107,7 @@ def get_family_species_recipe(
     )
 
 
-def get_family_family_recipe(
+def _get_family_family_recipe(
     pedigree: MonsterFamily,
     mate: MonsterFamily,
 ) -> list[Recipe]:
