@@ -1166,6 +1166,218 @@ def test_bird_breeding_combos(
 @pytest.mark.parametrize(
     ("pedigree", "mate", "expected"),
     [
+        # Any Bug + any Slime -> GiantSlug (avoid GiantSlug+Slime -> ArmyAnt)
+        (MonsterSpecies.CATAPILA, MonsterSpecies.SLIME, MonsterSpecies.GIANTSLUG),
+        (MonsterSpecies.BUTTERFLY, MonsterSpecies.BOXSLIME, MonsterSpecies.GIANTSLUG),
+        (MonsterSpecies.GOPHECADA, MonsterSpecies.SPOTSLIME, MonsterSpecies.GIANTSLUG),
+        (MonsterSpecies.WEEDBUG, MonsterSpecies.SNAILY, MonsterSpecies.GIANTSLUG),
+        (MonsterSpecies.STAGBUG, MonsterSpecies.HEALER, MonsterSpecies.GIANTSLUG),
+        # Any Bug + any Dragon -> Catapila
+        (MonsterSpecies.BUTTERFLY, MonsterSpecies.DRAGON, MonsterSpecies.CATAPILA),
+        (MonsterSpecies.GOPHECADA, MonsterSpecies.MINIDRAK, MonsterSpecies.CATAPILA),
+        (MonsterSpecies.WEEDBUG, MonsterSpecies.PTERANOD, MonsterSpecies.CATAPILA),
+        (MonsterSpecies.GIANTWORM, MonsterSpecies.SWORDGON, MonsterSpecies.CATAPILA),
+        (MonsterSpecies.LIPSY, MonsterSpecies.TORTRAGON, MonsterSpecies.CATAPILA),
+        # Any Bug + any Beast -> Gophecada (avoid Catapila+Beast -> Eyeder)
+        (MonsterSpecies.GOPHECADA, MonsterSpecies.ANTEATER, MonsterSpecies.GOPHECADA),
+        (MonsterSpecies.BUTTERFLY, MonsterSpecies.GRIZZLY, MonsterSpecies.GOPHECADA),
+        (MonsterSpecies.WEEDBUG, MonsterSpecies.PILLOWRAT, MonsterSpecies.GOPHECADA),
+        (MonsterSpecies.GIANTWORM, MonsterSpecies.CATFLY, MonsterSpecies.GOPHECADA),
+        (MonsterSpecies.STAGBUG, MonsterSpecies.SKULLROO, MonsterSpecies.GOPHECADA),
+        # Any Bug + any Bird -> Butterfly
+        (MonsterSpecies.CATAPILA, MonsterSpecies.DRACKY, MonsterSpecies.BUTTERFLY),
+        (MonsterSpecies.GOPHECADA, MonsterSpecies.BULLBIRD, MonsterSpecies.BUTTERFLY),
+        (MonsterSpecies.WEEDBUG, MonsterSpecies.FLORAJAY, MonsterSpecies.BUTTERFLY),
+        (MonsterSpecies.GIANTWORM, MonsterSpecies.DUCKKITE, MonsterSpecies.BUTTERFLY),
+        (MonsterSpecies.STAGBUG, MonsterSpecies.MADPECKER, MonsterSpecies.BUTTERFLY),
+        # Any Bug + any Plant -> Weedbug (avoid Bug+Floraman -> Taileater; avoid Bug+Amberweed -> Eyeder)
+        (MonsterSpecies.CATAPILA, MonsterSpecies.FIREWEED, MonsterSpecies.WEEDBUG),
+        (MonsterSpecies.BUTTERFLY, MonsterSpecies.CACTIBALL, MonsterSpecies.WEEDBUG),
+        (MonsterSpecies.GOPHECADA, MonsterSpecies.TOADSTOOL, MonsterSpecies.WEEDBUG),
+        (MonsterSpecies.GIANTWORM, MonsterSpecies.GULPPLE, MonsterSpecies.WEEDBUG),
+        (MonsterSpecies.LIPSY, MonsterSpecies.FIREWEED, MonsterSpecies.WEEDBUG),
+        # Any Bug + any Devil -> GiantWorm (avoid Butterfly+Devil -> GiantMoth)
+        (MonsterSpecies.CATAPILA, MonsterSpecies.DEMONITE, MonsterSpecies.GIANTWORM),
+        (MonsterSpecies.LIPSY, MonsterSpecies.ARCDEMON, MonsterSpecies.GIANTWORM),
+        (MonsterSpecies.WEEDBUG, MonsterSpecies.AGDEVIL, MonsterSpecies.GIANTWORM),
+        (MonsterSpecies.STAGBUG, MonsterSpecies.DEMONITE, MonsterSpecies.GIANTWORM),
+        (MonsterSpecies.ARMYANT, MonsterSpecies.ARCDEMON, MonsterSpecies.GIANTWORM),
+        # Any Bug + any Zombie -> Lipsy (avoid Bug+Spooky -> Droll; use NiteWhip etc.)
+        (MonsterSpecies.CATAPILA, MonsterSpecies.NITEWHIP, MonsterSpecies.LIPSY),
+        (MonsterSpecies.BUTTERFLY, MonsterSpecies.NITEWHIP, MonsterSpecies.LIPSY),
+        (MonsterSpecies.GOPHECADA, MonsterSpecies.SKULLGON, MonsterSpecies.LIPSY),
+        (MonsterSpecies.WEEDBUG, MonsterSpecies.MUMMY, MonsterSpecies.LIPSY),
+        (MonsterSpecies.GIANTWORM, MonsterSpecies.NITEWHIP, MonsterSpecies.LIPSY),
+        # Any Bug + any Material -> Stagbug (avoid Bug+Ironturt -> Armorpede; avoid GiantWorm+Material -> Armorpede)
+        (MonsterSpecies.CATAPILA, MonsterSpecies.GOLDGOLEM, MonsterSpecies.STAGBUG),
+        (MonsterSpecies.BUTTERFLY, MonsterSpecies.BALZAK, MonsterSpecies.STAGBUG),
+        (MonsterSpecies.WEEDBUG, MonsterSpecies.CURSELAMP, MonsterSpecies.STAGBUG),
+        (MonsterSpecies.ARMYANT, MonsterSpecies.EVILPOT, MonsterSpecies.STAGBUG),
+        (MonsterSpecies.LIPSY, MonsterSpecies.GOLDGOLEM, MonsterSpecies.STAGBUG),
+        # GiantSlug + any Slime -> ArmyAnt (species+family)
+        (MonsterSpecies.GIANTSLUG, MonsterSpecies.SLIME, MonsterSpecies.ARMYANT),
+        (MonsterSpecies.GIANTSLUG, MonsterSpecies.BOXSLIME, MonsterSpecies.ARMYANT),
+        (MonsterSpecies.GIANTSLUG, MonsterSpecies.SPOTSLIME, MonsterSpecies.ARMYANT),
+        # Weedbug + any Plant -> Taileater (species+family)
+        (MonsterSpecies.WEEDBUG, MonsterSpecies.FIREWEED, MonsterSpecies.TAILEATER),
+        (MonsterSpecies.WEEDBUG, MonsterSpecies.CACTIBALL, MonsterSpecies.TAILEATER),
+        (MonsterSpecies.WEEDBUG, MonsterSpecies.FLORAMAN, MonsterSpecies.TAILEATER),
+        # Bug + Floraman -> Taileater (family+species)
+        (MonsterSpecies.CATAPILA, MonsterSpecies.FLORAMAN, MonsterSpecies.TAILEATER),
+        (MonsterSpecies.GIANTWORM, MonsterSpecies.FLORAMAN, MonsterSpecies.TAILEATER),
+        # GiantWorm + any Material -> Armorpede (species+family)
+        (MonsterSpecies.GIANTWORM, MonsterSpecies.GOLDGOLEM, MonsterSpecies.ARMORPEDE),
+        (MonsterSpecies.GIANTWORM, MonsterSpecies.BALZAK, MonsterSpecies.ARMORPEDE),
+        # Droll + any Dragon -> Armorpede (species+family)
+        (MonsterSpecies.DROLL, MonsterSpecies.DRAGON, MonsterSpecies.ARMORPEDE),
+        (MonsterSpecies.DROLL, MonsterSpecies.MINIDRAK, MonsterSpecies.ARMORPEDE),
+        # Bug + Ironturt -> Armorpede (family+species; avoid Catapila+Beast -> Eyeder)
+        (MonsterSpecies.BUTTERFLY, MonsterSpecies.IRONTURT, MonsterSpecies.ARMORPEDE),
+        (MonsterSpecies.WEEDBUG, MonsterSpecies.IRONTURT, MonsterSpecies.ARMORPEDE),
+        # Catapila + any Beast -> Eyeder (species+family)
+        (MonsterSpecies.CATAPILA, MonsterSpecies.ANTEATER, MonsterSpecies.EYEDER),
+        (MonsterSpecies.CATAPILA, MonsterSpecies.GRIZZLY, MonsterSpecies.EYEDER),
+        (MonsterSpecies.CATAPILA, MonsterSpecies.PILLOWRAT, MonsterSpecies.EYEDER),
+        # Bug + Amberweed -> Eyeder (family+species)
+        (MonsterSpecies.GOPHECADA, MonsterSpecies.AMBERWEED, MonsterSpecies.EYEDER),
+        (MonsterSpecies.LIPSY, MonsterSpecies.AMBERWEED, MonsterSpecies.EYEDER),
+        # Butterfly + any Devil -> GiantMoth (species+family)
+        (MonsterSpecies.BUTTERFLY, MonsterSpecies.DEMONITE, MonsterSpecies.GIANTMOTH),
+        (MonsterSpecies.BUTTERFLY, MonsterSpecies.ARCDEMON, MonsterSpecies.GIANTMOTH),
+        # Bug + Saccer -> GiantMoth (family+species; avoid Catapila+Beast -> Eyeder)
+        (MonsterSpecies.WEEDBUG, MonsterSpecies.SACCER, MonsterSpecies.GIANTMOTH),
+        (MonsterSpecies.GOPHECADA, MonsterSpecies.SACCER, MonsterSpecies.GIANTMOTH),
+        # Lipsy + any Slime -> Droll (species+family)
+        (MonsterSpecies.LIPSY, MonsterSpecies.SLIME, MonsterSpecies.DROLL),
+        (MonsterSpecies.LIPSY, MonsterSpecies.BOXSLIME, MonsterSpecies.DROLL),
+        # Bug + Spooky -> Droll (family+species)
+        (MonsterSpecies.CATAPILA, MonsterSpecies.SPOOKY, MonsterSpecies.DROLL),
+        (MonsterSpecies.GOPHECADA, MonsterSpecies.SPOOKY, MonsterSpecies.DROLL),
+        (MonsterSpecies.WEEDBUG, MonsterSpecies.SPOOKY, MonsterSpecies.DROLL),
+        # Bug + DarkCrab -> ArmyCrab (family+species)
+        (MonsterSpecies.CATAPILA, MonsterSpecies.DARKCRAB, MonsterSpecies.ARMYCRAB),
+        (MonsterSpecies.BUTTERFLY, MonsterSpecies.DARKCRAB, MonsterSpecies.ARMYCRAB),
+        # Bug + FairyRat -> MadHornet (family+species; avoid Catapila+Beast -> Eyeder)
+        (MonsterSpecies.BUTTERFLY, MonsterSpecies.FAIRYRAT, MonsterSpecies.MADHORNET),
+        (MonsterSpecies.GOPHECADA, MonsterSpecies.FAIRYRAT, MonsterSpecies.MADHORNET),
+        # Eyeder or Droll + any Zombie -> MadHornet (species+family)
+        (MonsterSpecies.EYEDER, MonsterSpecies.SPOOKY, MonsterSpecies.MADHORNET),
+        (MonsterSpecies.DROLL, MonsterSpecies.SPOOKY, MonsterSpecies.MADHORNET),
+        # Stagbug + Stagbug -> Hornbeet (species+species)
+        (MonsterSpecies.STAGBUG, MonsterSpecies.STAGBUG, MonsterSpecies.HORNBEET),
+        # Armorpede + any Devil -> Hornbeet (species+family)
+        (MonsterSpecies.ARMORPEDE, MonsterSpecies.DEMONITE, MonsterSpecies.HORNBEET),
+        (MonsterSpecies.ARMORPEDE, MonsterSpecies.ARCDEMON, MonsterSpecies.HORNBEET),
+        # Hornbeet + Hornbeet -> ArmorPion (species+species)
+        (MonsterSpecies.HORNBEET, MonsterSpecies.HORNBEET, MonsterSpecies.ARMORPION),
+        # Any Bug + any Boss -> Digster
+        (MonsterSpecies.CATAPILA, MonsterSpecies.DRACOLORD1, MonsterSpecies.DIGSTER),
+        (MonsterSpecies.BUTTERFLY, MonsterSpecies.BARAMOS, MonsterSpecies.DIGSTER),
+        (MonsterSpecies.GOPHECADA, MonsterSpecies.HARGON, MonsterSpecies.DIGSTER),
+        (MonsterSpecies.WEEDBUG, MonsterSpecies.SIDOH, MonsterSpecies.DIGSTER),
+    ],
+    ids=[
+        "catapila_slime",
+        "butterfly_boxslime",
+        "gophecada_spotslime",
+        "weedbug_snaily",
+        "stagbug_healer",
+        "butterfly_dragon",
+        "gophecada_minidrak",
+        "weedbug_pteranod",
+        "giantworm_swordgon",
+        "lipsy_tortragon",
+        "gophecada_anteater",
+        "butterfly_grizzly",
+        "weedbug_pillowrat",
+        "giantworm_catfly",
+        "stagbug_skullroo",
+        "catapila_dracky",
+        "gophecada_bullbird",
+        "weedbug_florajay",
+        "giantworm_duckkite",
+        "stagbug_madpecker",
+        "catapila_fireweed",
+        "butterfly_cactiball",
+        "gophecada_toadstool",
+        "giantworm_gulpple",
+        "lipsy_fireweed",
+        "catapila_demonite",
+        "lipsy_arcdemon",
+        "weedbug_agdevil",
+        "stagbug_demonite",
+        "armyant_arcdemon",
+        "catapila_nitewhip",
+        "butterfly_nitewhip",
+        "gophecada_skullgon",
+        "weedbug_mummy",
+        "giantworm_nitewhip",
+        "catapila_goldgolem",
+        "butterfly_balzak",
+        "weedbug_curselamp",
+        "armyant_evilpot",
+        "lipsy_goldgolem",
+        "giantslug_slime",
+        "giantslug_boxslime",
+        "giantslug_spotslime",
+        "weedbug_fireweed",
+        "weedbug_cactiball",
+        "weedbug_floraman",
+        "catapila_floraman",
+        "giantworm_floraman",
+        "giantworm_goldgolem",
+        "giantworm_balzak",
+        "droll_dragon",
+        "droll_minidrak",
+        "butterfly_ironturt",
+        "weedbug_ironturt",
+        "catapila_anteater_eyeder",
+        "catapila_grizzly_eyeder",
+        "catapila_pillowrat_eyeder",
+        "gophecada_amberweed",
+        "lipsy_amberweed",
+        "butterfly_demonite",
+        "butterfly_arcdemon",
+        "gophecada_saccer",
+        "weedbug_saccer",
+        "lipsy_slime",
+        "lipsy_boxslime",
+        "catapila_spooky_droll",
+        "gophecada_spooky_droll",
+        "weedbug_spooky_droll",
+        "catapila_darkcrab",
+        "butterfly_darkcrab",
+        "gophecada_fairyrat",
+        "butterfly_fairyrat",
+        "eyeder_spooky",
+        "droll_spooky",
+        "stagbug_stagbug",
+        "armorpede_demonite",
+        "armorpede_arcdemon",
+        "hornbeet_hornbeet",
+        "catapila_dracolord1",
+        "butterfly_baramos",
+        "gophecada_hargon",
+        "weedbug_sidoh",
+    ],
+)
+def test_bug_breeding_combos(
+    pedigree: Species,
+    mate: Species,
+    expected: Species,
+) -> None:
+    """
+    All combos that result in a Bug-class monster (Rules sheet Bug section).
+
+    Every expected is Bug family. Mates from other families appear only as the second argument.
+    """
+    result = get_breeding_result(pedigree=pedigree, mate=mate)
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    ("pedigree", "mate", "expected"),
+    [
         # Any Plant + any Slime -> MadPlant
         (MonsterSpecies.FIREWEED, MonsterSpecies.SLIME, MonsterSpecies.MADPLANT),
         (MonsterSpecies.CACTIBALL, MonsterSpecies.BOXSLIME, MonsterSpecies.MADPLANT),
