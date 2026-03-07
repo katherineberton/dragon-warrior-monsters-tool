@@ -647,3 +647,14 @@ class TravelersGates:
             MonsterSpecies.GREATDRAK,
         ],
     )
+
+    @property
+    def all(self):
+        return [
+            gate
+            for gate in self.__class__.__dict__.values()
+            if isinstance(gate, TravelersGate)
+        ]
+
+    def get_by_monster(self, species_id) -> list[TravelersGate]:
+        return [gate for gate in self.all if species_id in [monster.id for monster in gate.monsters]]

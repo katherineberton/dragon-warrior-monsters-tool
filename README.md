@@ -16,6 +16,7 @@ class BreedingEvent(base_models.BaseModel):
     male: Monster # An actual owned monster
     female: Monster # An actual owned monster
     pedigree: constants.MonsterGenders (male or female)
+    breeding_plan: BreedingPlan
 
 
 --------------------------------For the monsters module:--------------------------------
