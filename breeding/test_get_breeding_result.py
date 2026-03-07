@@ -2285,3 +2285,87 @@ def test_material_breeding_combos(
     """
     result = get_breeding_result(pedigree=pedigree, mate=mate)
     assert result == expected
+
+
+@pytest.mark.parametrize(
+    ("pedigree", "mate", "expected"),
+    [
+        # WhiteKing + MetalKing -> Hargon
+        (MonsterSpecies.WHITEKING, MonsterSpecies.METALKING, MonsterSpecies.HARGON),
+        # Jamirus + RoseVine -> Sidoh
+        (MonsterSpecies.JAMIRUS, MonsterSpecies.ROSEVINE, MonsterSpecies.SIDOH),
+        # Hargon + Orochi -> Baramos
+        (MonsterSpecies.HARGON, MonsterSpecies.OROCHI, MonsterSpecies.BARAMOS),
+        # Dracolord1 + Divinegon -> Dracolord2
+        (
+            MonsterSpecies.DRACOLORD1,
+            MonsterSpecies.DIVINEGON,
+            MonsterSpecies.DRACOLORD2,
+        ),
+        # Durran + Divinegon -> Pizzaro
+        (MonsterSpecies.DURRAN, MonsterSpecies.DIVINEGON, MonsterSpecies.PIZZARO),
+        # Pizzaro + KingLeo -> Esterk
+        (MonsterSpecies.PIZZARO, MonsterSpecies.KINGLEO, MonsterSpecies.ESTERK),
+        # Esterk + GoldSlime -> Mirudraas1
+        (MonsterSpecies.ESTERK, MonsterSpecies.GOLDSLIME, MonsterSpecies.MIRUDRAAS1),
+        # Mirudraas1 + Spikerous -> Mirudraas2
+        (
+            MonsterSpecies.MIRUDRAAS1,
+            MonsterSpecies.SPIKEROUS,
+            MonsterSpecies.MIRUDRAAS2,
+        ),
+        # Baramos + DarkHorn -> Mudou
+        (MonsterSpecies.BARAMOS, MonsterSpecies.DARKHORN, MonsterSpecies.MUDOU),
+        # DeathMore1 + ArmorPion -> DeathMore2
+        (
+            MonsterSpecies.DEATHMORE1,
+            MonsterSpecies.ARMORPION,
+            MonsterSpecies.DEATHMORE2,
+        ),
+        # DeathMore1 + Mudou -> DeathMore3
+        (MonsterSpecies.DEATHMORE1, MonsterSpecies.MUDOU, MonsterSpecies.DEATHMORE3),
+        # DeathMore1 + Watabou -> DarkDrium
+        (MonsterSpecies.DEATHMORE1, MonsterSpecies.WATABOU, MonsterSpecies.DARKDRIUM),
+        # Dracolord1,Dracolord2 + Sidoh -> Zoma
+        (MonsterSpecies.DRACOLORD1, MonsterSpecies.SIDOH, MonsterSpecies.ZOMA),
+        (MonsterSpecies.DRACOLORD2, MonsterSpecies.SIDOH, MonsterSpecies.ZOMA),
+        # Servant + Andreal or GreatDrak -> Dracolord1
+        (MonsterSpecies.SERVANT, MonsterSpecies.ANDREAL, MonsterSpecies.DRACOLORD1),
+        (MonsterSpecies.SERVANT, MonsterSpecies.GREATDRAK, MonsterSpecies.DRACOLORD1),
+        # Zoma + Mirudraas1 or Mirudraas2 -> DeathMore1
+        (MonsterSpecies.ZOMA, MonsterSpecies.MIRUDRAAS1, MonsterSpecies.DEATHMORE1),
+        (MonsterSpecies.ZOMA, MonsterSpecies.MIRUDRAAS2, MonsterSpecies.DEATHMORE1),
+    ],
+    ids=[
+        "whiteking_metalking",
+        "jamirus_rosevine",
+        "hargon_orochi",
+        "dracolord1_divinegon",
+        "durran_divinegon",
+        "pizzaro_kingleo",
+        "esterk_goldslime",
+        "mirudraas1_spikerous",
+        "baramos_darkhorn",
+        "deathmore1_armorpion",
+        "deathmore1_mudou",
+        "deathmore1_watabou",
+        "dracolord1_sidoh",
+        "dracolord2_sidoh",
+        "servant_andreal",
+        "servant_greatdrak",
+        "zoma_mirudraas1",
+        "zoma_mirudraas2",
+    ],
+)
+def test_boss_breeding_combos(
+    pedigree: Species,
+    mate: Species,
+    expected: Species,
+) -> None:
+    """
+    All combos that result in a Boss-class monster (Rules sheet Boss section).
+
+    Every expected is Boss family. Mates from other families appear only as the second argument.
+    """
+    result = get_breeding_result(pedigree=pedigree, mate=mate)
+    assert result == expected
