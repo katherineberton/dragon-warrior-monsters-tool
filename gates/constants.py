@@ -661,4 +661,8 @@ class TravelersGates:
 
     def get_by_monster(self, species_id: int) -> list[TravelersGate]:
         """Return gates that include the given monster species."""
-        return [gate for gate in self.all if species_id in [monster.id for monster in gate.monsters]]
+        return [
+            gate
+            for gate in self.all
+            if species_id in [monster.id for monster in gate.monsters]
+        ]
