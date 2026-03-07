@@ -1,7 +1,11 @@
+"""Shared game constants (stat types, genders, etc.)."""
+
 from enum import IntEnum
 
 
 class StatTypes(IntEnum):
+    """Stat type identifiers."""
+
     HP = 1
     MP = 2
     ATK = 3
@@ -12,5 +16,7 @@ class StatTypes(IntEnum):
 
 
 class MonsterGenders(IntEnum):
+    """Monster gender identifiers."""
+
     FEMALE = 1
     MALE = 2

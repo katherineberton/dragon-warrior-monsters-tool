@@ -1,3 +1,5 @@
+"""Application configuration and environment loading."""
+
 import os
 
 from dotenv import load_dotenv

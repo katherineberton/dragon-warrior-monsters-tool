@@ -1,3 +1,5 @@
+"""Travelers gate definitions and data for Dragon Warrior Monsters."""
+
 import enum
 from typing import NamedTuple
 
@@ -649,12 +651,14 @@ class TravelersGates:
     )
 
     @property
-    def all(self):
+    def all(self) -> list[TravelersGate]:
+        """Return all TravelersGate instances defined on this class."""
         return [
             gate
             for gate in self.__class__.__dict__.values()
             if isinstance(gate, TravelersGate)
         ]
 
-    def get_by_monster(self, species_id) -> list[TravelersGate]:
+    def get_by_monster(self, species_id: int) -> list[TravelersGate]:
+        """Return gates that include the given monster species."""
         return [gate for gate in self.all if species_id in [monster.id for monster in gate.monsters]]

@@ -1,3 +1,5 @@
+"""Monster species, families, and related constants for Dragon Warrior Monsters."""
+
 import enum
 from typing import NamedTuple
 
