@@ -3,3 +3,27 @@ dwm/
 .DS_Store
 **/__pycache__/
 .vscode/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Python
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Tooling / caches
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/

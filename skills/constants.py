@@ -1,3 +1,5 @@
+"""Constants for skills."""
+
 from typing import NamedTuple
 
 from monsters.constants import MonsterSpecies, Species
@@ -2742,9 +2744,9 @@ class LevelledSkill(NamedTuple):
 
     levelled_skill: Skill
     level: int  # The level of this advancing skill, if it is levelled
-    base_skill: (
-        Skill | None
-    )  # The base skill this levelled skill originates from, if there is one
+    base_skill: Skill | None = (
+        None  # The base skill this levelled skill originates from, if there is one
+    )
 
 
 class LevelledSkills:
