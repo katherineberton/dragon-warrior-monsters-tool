@@ -1833,3 +1833,221 @@ def test_devil_breeding_combos(
     """
     result = get_breeding_result(pedigree=pedigree, mate=mate)
     assert result == expected
+
+
+@pytest.mark.parametrize(
+    ("pedigree", "mate", "expected"),
+    [
+        # Any Zombie + any Slime -> Spooky (avoid Zombie + BoxSlime/FangSlime etc -> Mudron)
+        (MonsterSpecies.MUMMY, MonsterSpecies.SLIME, MonsterSpecies.SPOOKY),
+        (MonsterSpecies.PUTREPUP, MonsterSpecies.SPOTSLIME, MonsterSpecies.SPOOKY),
+        (MonsterSpecies.DARKCRAB, MonsterSpecies.SPOTSLIME, MonsterSpecies.SPOOKY),
+        # Any Zombie + Beast -> Putrepup (avoid Spooky + Beast -> Hork)
+        (MonsterSpecies.MUMMY, MonsterSpecies.ANTEATER, MonsterSpecies.PUTREPUP),
+        (MonsterSpecies.PUTREPUP, MonsterSpecies.GRIZZLY, MonsterSpecies.PUTREPUP),
+        (MonsterSpecies.DARKCRAB, MonsterSpecies.PILLOWRAT, MonsterSpecies.PUTREPUP),
+        # Spooky + Beast -> Hork
+        (MonsterSpecies.SPOOKY, MonsterSpecies.ANTEATER, MonsterSpecies.HORK),
+        (MonsterSpecies.SPOOKY, MonsterSpecies.CATFLY, MonsterSpecies.HORK),
+        # Any Zombie + Bird -> RotRaven (avoid [Skullgon, DeadNite, Mudron, ...] + Bird -> MadSpirit)
+        (MonsterSpecies.SPOOKY, MonsterSpecies.DRACKY, MonsterSpecies.ROTRAVEN),
+        (MonsterSpecies.MUMMY, MonsterSpecies.FLORAJAY, MonsterSpecies.ROTRAVEN),
+        (MonsterSpecies.PUTREPUP, MonsterSpecies.PHOENIX, MonsterSpecies.ROTRAVEN),
+        # RotRaven + Bird -> WindMerge
+        (MonsterSpecies.ROTRAVEN, MonsterSpecies.DRACKY, MonsterSpecies.WINDMERGE),
+        (MonsterSpecies.ROTRAVEN, MonsterSpecies.BIGROOST, MonsterSpecies.WINDMERGE),
+        # Any Zombie + WindBeast -> WindMerge (avoid Spooky + Beast -> Hork)
+        (MonsterSpecies.MUMMY, MonsterSpecies.WINDBEAST, MonsterSpecies.WINDMERGE),
+        (MonsterSpecies.PUTREPUP, MonsterSpecies.WINDBEAST, MonsterSpecies.WINDMERGE),
+        # Any Zombie + Plant -> Mummy (avoid [Mummy, DeadNite, Hork] + Floraman etc -> BoneSlave)
+        (MonsterSpecies.SPOOKY, MonsterSpecies.FIREWEED, MonsterSpecies.MUMMY),
+        (MonsterSpecies.PUTREPUP, MonsterSpecies.AMBERWEED, MonsterSpecies.MUMMY),
+        (MonsterSpecies.DARKCRAB, MonsterSpecies.FLORAMAN, MonsterSpecies.MUMMY),
+        # Any Zombie + Bug -> DarkCrab (avoid Zombie + GiantSlug/Lipsy/Droll -> Mudron when testing family+family)
+        (MonsterSpecies.SPOOKY, MonsterSpecies.CATAPILA, MonsterSpecies.DARKCRAB),
+        (MonsterSpecies.MUMMY, MonsterSpecies.BUTTERFLY, MonsterSpecies.DARKCRAB),
+        (MonsterSpecies.HORK, MonsterSpecies.ARMYANT, MonsterSpecies.DARKCRAB),
+        # Any Zombie + Devil -> DeadNite (avoid Spooky/Hork + Devil -> Reaper; DarkCrab/MadSpirit + Devil -> NiteWhip)
+        (MonsterSpecies.MUMMY, MonsterSpecies.DEMONITE, MonsterSpecies.DEADNITE),
+        (MonsterSpecies.PUTREPUP, MonsterSpecies.ARCDEMON, MonsterSpecies.DEADNITE),
+        (MonsterSpecies.ROTRAVEN, MonsterSpecies.GREMLIN, MonsterSpecies.DEADNITE),
+        # Any Zombie + Material -> Shadow
+        (MonsterSpecies.SPOOKY, MonsterSpecies.GOLDGOLEM, MonsterSpecies.SHADOW),
+        (MonsterSpecies.MUMMY, MonsterSpecies.BALZAK, MonsterSpecies.SHADOW),
+        (MonsterSpecies.DARKCRAB, MonsterSpecies.CURSELAMP, MonsterSpecies.SHADOW),
+        # Any Zombie + Dragon -> MadSpirit (avoid NiteWhip: Zombie + MistyWing - MistyWing is Bird)
+        (MonsterSpecies.SPOOKY, MonsterSpecies.DRAGON, MonsterSpecies.MADSPIRIT),
+        (MonsterSpecies.MUMMY, MonsterSpecies.MINIDRAK, MonsterSpecies.MADSPIRIT),
+        (MonsterSpecies.PUTREPUP, MonsterSpecies.TORTRAGON, MonsterSpecies.MADSPIRIT),
+        # Zombie + MistyWing -> NiteWhip
+        (MonsterSpecies.SPOOKY, MonsterSpecies.MISTYWING, MonsterSpecies.NITEWHIP),
+        (MonsterSpecies.MUMMY, MonsterSpecies.MISTYWING, MonsterSpecies.NITEWHIP),
+        # DarkCrab/MadSpirit + Devil -> NiteWhip (avoid [Mudron, MadSpirit, ...] + ArcDemon etc -> DeadNoble)
+        (MonsterSpecies.DARKCRAB, MonsterSpecies.DEMONITE, MonsterSpecies.NITEWHIP),
+        (MonsterSpecies.MADSPIRIT, MonsterSpecies.DEMONITE, MonsterSpecies.NITEWHIP),
+        # Spooky/Hork + Devil -> Reaper
+        (MonsterSpecies.SPOOKY, MonsterSpecies.DEMONITE, MonsterSpecies.REAPER),
+        (MonsterSpecies.HORK, MonsterSpecies.ARCDEMON, MonsterSpecies.REAPER),
+        # Zombie + WeedBug -> Reaper
+        (MonsterSpecies.MUMMY, MonsterSpecies.WEEDBUG, MonsterSpecies.REAPER),
+        (MonsterSpecies.DARKCRAB, MonsterSpecies.WEEDBUG, MonsterSpecies.REAPER),
+        # DeadNite + DeadNite -> DeadNoble
+        (MonsterSpecies.DEADNITE, MonsterSpecies.DEADNITE, MonsterSpecies.DEADNOBLE),
+        # Any Zombie + Boss -> WhiteKing
+        (MonsterSpecies.SPOOKY, MonsterSpecies.DRACOLORD1, MonsterSpecies.WHITEKING),
+        (MonsterSpecies.MUMMY, MonsterSpecies.BARAMOS, MonsterSpecies.WHITEKING),
+        (MonsterSpecies.DEADNITE, MonsterSpecies.HARGON, MonsterSpecies.WHITEKING),
+        # BoneSlave + BoneSlave -> Skeletor
+        (MonsterSpecies.BONESLAVE, MonsterSpecies.BONESLAVE, MonsterSpecies.SKELETOR),
+        # MadSpirit + Dragon -> Skeletor
+        (MonsterSpecies.MADSPIRIT, MonsterSpecies.DRAGON, MonsterSpecies.SKELETOR),
+        (MonsterSpecies.MADSPIRIT, MonsterSpecies.PTERANOD, MonsterSpecies.SKELETOR),
+        # Skeletor + Skeletor -> Servant
+        (MonsterSpecies.SKELETOR, MonsterSpecies.SKELETOR, MonsterSpecies.SERVANT),
+        # WhiteKing + Devil -> Servant
+        (MonsterSpecies.WHITEKING, MonsterSpecies.DEMONITE, MonsterSpecies.SERVANT),
+        (MonsterSpecies.WHITEKING, MonsterSpecies.GATEGUARD, MonsterSpecies.SERVANT),
+        # Dragon + [Skullgon, DeadNoble, WhiteKing, Servant] -> Skullgon
+        (MonsterSpecies.DRAGON, MonsterSpecies.SKULLGON, MonsterSpecies.SKULLGON),
+        (MonsterSpecies.MINIDRAK, MonsterSpecies.DEADNOBLE, MonsterSpecies.SKULLGON),
+        (MonsterSpecies.TORTRAGON, MonsterSpecies.WHITEKING, MonsterSpecies.SKULLGON),
+        (MonsterSpecies.PTERANOD, MonsterSpecies.SERVANT, MonsterSpecies.SKULLGON),
+        # Zombie + [BoxSlime, FangSlime, Tonguella, Yeti, ...] -> Mudron (family+species; avoid Zombie+Slime/Beast/Bird/Plant/Bug generic)
+        (MonsterSpecies.SPOOKY, MonsterSpecies.GIANTSLUG, MonsterSpecies.MUDRON),
+        (MonsterSpecies.MUMMY, MonsterSpecies.LIPSY, MonsterSpecies.MUDRON),
+        (MonsterSpecies.PUTREPUP, MonsterSpecies.DROLL, MonsterSpecies.MUDRON),
+        (MonsterSpecies.DARKCRAB, MonsterSpecies.MADPLANT, MonsterSpecies.MUDRON),
+        # Zombie + [Swordgon, Rayburn, Andreal, ...] -> Skullgon
+        (MonsterSpecies.SPOOKY, MonsterSpecies.SWORDGON, MonsterSpecies.SKULLGON),
+        (MonsterSpecies.MUMMY, MonsterSpecies.ANDREAL, MonsterSpecies.SKULLGON),
+        (MonsterSpecies.DEADNITE, MonsterSpecies.BATTLEREX, MonsterSpecies.SKULLGON),
+        # [Skullgon, DeadNoble, WhiteKing, BoneSlave, Skeletor] + Dragon -> Skullgon
+        (MonsterSpecies.SKULLGON, MonsterSpecies.DRAGON, MonsterSpecies.SKULLGON),
+        (MonsterSpecies.DEADNOBLE, MonsterSpecies.MINIDRAK, MonsterSpecies.SKULLGON),
+        (MonsterSpecies.BONESLAVE, MonsterSpecies.TORTRAGON, MonsterSpecies.SKULLGON),
+        # [Skullgon, DeadNite, Mudron, BoneSlave, Skeletor] + Copycat -> DeadNoble
+        (MonsterSpecies.SKULLGON, MonsterSpecies.COPYCAT, MonsterSpecies.DEADNOBLE),
+        (MonsterSpecies.MUDRON, MonsterSpecies.COPYCAT, MonsterSpecies.DEADNOBLE),
+        (MonsterSpecies.SKELETOR, MonsterSpecies.COPYCAT, MonsterSpecies.DEADNOBLE),
+        # [Skullgon, DeadNite, Mudron, DeadNoble, BoneSlave, Skeletor] + Bird -> MadSpirit
+        (MonsterSpecies.SKULLGON, MonsterSpecies.DRACKY, MonsterSpecies.MADSPIRIT),
+        (MonsterSpecies.MUDRON, MonsterSpecies.BULLBIRD, MonsterSpecies.MADSPIRIT),
+        (MonsterSpecies.DEADNOBLE, MonsterSpecies.PHOENIX, MonsterSpecies.MADSPIRIT),
+        # [Mudron, MadSpirit, BoneSlave, Skeletor] + [ArcDemon, Lionex, ...] -> DeadNoble
+        (MonsterSpecies.MUDRON, MonsterSpecies.ARCDEMON, MonsterSpecies.DEADNOBLE),
+        (MonsterSpecies.MADSPIRIT, MonsterSpecies.LIONEX, MonsterSpecies.DEADNOBLE),
+        (MonsterSpecies.BONESLAVE, MonsterSpecies.GATEGUARD, MonsterSpecies.DEADNOBLE),
+        # [Skullgon, DeadNoble, BoneSlave, Skeletor] + [SpotKing, KingSlime, ...] -> WhiteKing
+        (MonsterSpecies.SKULLGON, MonsterSpecies.SPOTKING, MonsterSpecies.WHITEKING),
+        (MonsterSpecies.DEADNOBLE, MonsterSpecies.KINGSLIME, MonsterSpecies.WHITEKING),
+        (MonsterSpecies.SKELETOR, MonsterSpecies.METALKING, MonsterSpecies.WHITEKING),
+        (MonsterSpecies.BONESLAVE, MonsterSpecies.GOLDGOLEM, MonsterSpecies.WHITEKING),
+        # [Mummy, DeadNite, Hork] + [RockSlime, SlimeBorg, LandOwl, ...] -> BoneSlave
+        (MonsterSpecies.MUMMY, MonsterSpecies.ROCKSLIME, MonsterSpecies.BONESLAVE),
+        (MonsterSpecies.DEADNITE, MonsterSpecies.SLIMEBORG, MonsterSpecies.BONESLAVE),
+        (MonsterSpecies.HORK, MonsterSpecies.LANDOWL, MonsterSpecies.BONESLAVE),
+        (MonsterSpecies.MUMMY, MonsterSpecies.GREMLIN, MonsterSpecies.BONESLAVE),
+        # [Mummy, DeadNite, Hork, Mudron] + [GulpBeast, Grizzly, ...] -> Skeletor
+        (MonsterSpecies.MUMMY, MonsterSpecies.GULPBEAST, MonsterSpecies.SKELETOR),
+        (MonsterSpecies.DEADNITE, MonsterSpecies.GRIZZLY, MonsterSpecies.SKELETOR),
+        (MonsterSpecies.HORK, MonsterSpecies.MADCAT, MonsterSpecies.SKELETOR),
+        (MonsterSpecies.MUDRON, MonsterSpecies.OGRE, MonsterSpecies.SKELETOR),
+    ],
+    ids=[
+        "mummy_slime",
+        "putrepup_spotslime",
+        "darkcrab_spotslime",
+        "mummy_anteater",
+        "putrepup_grizzly",
+        "darkcrab_pillowrat",
+        "spooky_anteater",
+        "spooky_catfly",
+        "spooky_dracky",
+        "mummy_florajay",
+        "putrepup_phoenix",
+        "rotraven_dracky",
+        "rotraven_bigroost",
+        "mummy_windbeast",
+        "putrepup_windbeast",
+        "spooky_fireweed",
+        "putrepup_amberweed",
+        "darkcrab_floraman",
+        "spooky_catapila",
+        "mummy_butterfly",
+        "hork_armyant",
+        "mummy_demonite",
+        "putrepup_arcdemon",
+        "rotraven_gremlin",
+        "spooky_goldgolem",
+        "mummy_balzak",
+        "darkcrab_curselamp",
+        "spooky_dragon",
+        "mummy_minidrak",
+        "putrepup_tortragon",
+        "spooky_mistywing",
+        "mummy_mistywing",
+        "darkcrab_demonite",
+        "madspirit_demonite",
+        "spooky_demonite",
+        "hork_arcdemon",
+        "mummy_weedbug",
+        "darkcrab_weedbug",
+        "deadnite_deadnite",
+        "spooky_dracolord1",
+        "mummy_baramos",
+        "deadnite_hargon",
+        "boneslave_boneslave",
+        "madspirit_dragon",
+        "madspirit_pteranod",
+        "skeletor_skeletor",
+        "whiteking_demonite",
+        "whiteking_gateguard",
+        "dragon_skullgon",
+        "minidrak_deadnoble",
+        "tortragon_whiteking",
+        "pteranod_servant",
+        "spooky_giantslug",
+        "mummy_lipsy",
+        "putrepup_droll",
+        "darkcrab_madplant",
+        "spooky_swordgon",
+        "mummy_andreal",
+        "deadnite_battlerex",
+        "skullgon_dragon",
+        "deadnoble_minidrak",
+        "boneslave_tortragon",
+        "skullgon_copycat",
+        "mudron_copycat",
+        "skeletor_copycat",
+        "skullgon_dracky",
+        "mudron_bullbird",
+        "deadnoble_phoenix",
+        "mudron_arcdemon",
+        "madspirit_lionex",
+        "boneslave_gateguard",
+        "skullgon_spotking",
+        "deadnoble_kingslime",
+        "skeletor_metalking",
+        "boneslave_goldgolem",
+        "mummy_rockslime",
+        "deadnite_slimeborg",
+        "hork_landowl",
+        "mummy_gremlin",
+        "mummy_gulpbeast",
+        "deadnite_grizzly",
+        "hork_madcat",
+        "mudron_ogre",
+    ],
+)
+def test_zombie_breeding_combos(
+    pedigree: Species,
+    mate: Species,
+    expected: Species,
+) -> None:
+    """
+    All combos that result in a Zombie-class monster (Rules sheet Zombie section).
+
+    Every expected is Zombie family. Mates from other families appear only as the second argument.
+    """
+    result = get_breeding_result(pedigree=pedigree, mate=mate)
+    assert result == expected
