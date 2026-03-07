@@ -1584,3 +1584,252 @@ def test_plant_breeding_combos(
     """
     result = get_breeding_result(pedigree=pedigree, mate=mate)
     assert result == expected
+
+
+@pytest.mark.parametrize(
+    ("pedigree", "mate", "expected"),
+    [
+        # Any Devil + any Slime -> Pixy (avoid Pixy/Demonite/Eyeball + Slime -> OneEyeClown)
+        (MonsterSpecies.GREMLIN, MonsterSpecies.SLIME, MonsterSpecies.PIXY),
+        (MonsterSpecies.DARKEYE, MonsterSpecies.BOXSLIME, MonsterSpecies.PIXY),
+        (MonsterSpecies.SKULRIDER, MonsterSpecies.SPOTSLIME, MonsterSpecies.PIXY),
+        # GateGuard + Zombie -> ArcDemon
+        (MonsterSpecies.GATEGUARD, MonsterSpecies.SPOOKY, MonsterSpecies.ARCDEMON),
+        (MonsterSpecies.GATEGUARD, MonsterSpecies.MUMMY, MonsterSpecies.ARCDEMON),
+        # Ogre + Dragon -> ArcDemon
+        (MonsterSpecies.OGRE, MonsterSpecies.DRAGON, MonsterSpecies.ARCDEMON),
+        (MonsterSpecies.OGRE, MonsterSpecies.MINIDRAK, MonsterSpecies.ARCDEMON),
+        # Any Devil + Boss -> ArcDemon
+        (MonsterSpecies.PIXY, MonsterSpecies.DRACOLORD1, MonsterSpecies.ARCDEMON),
+        (MonsterSpecies.DARKEYE, MonsterSpecies.BARAMOS, MonsterSpecies.ARCDEMON),
+        # Any Devil + Bird -> Demonite
+        (MonsterSpecies.PIXY, MonsterSpecies.DRACKY, MonsterSpecies.DEMONITE),
+        (MonsterSpecies.DARKEYE, MonsterSpecies.FLORAJAY, MonsterSpecies.DEMONITE),
+        (MonsterSpecies.GREMLIN, MonsterSpecies.BULLBIRD, MonsterSpecies.DEMONITE),
+        # Any Devil + Plant -> DarkEye
+        (MonsterSpecies.PIXY, MonsterSpecies.FIREWEED, MonsterSpecies.DARKEYE),
+        (MonsterSpecies.DEMONITE, MonsterSpecies.AMBERWEED, MonsterSpecies.DARKEYE),
+        (MonsterSpecies.EYEBALL, MonsterSpecies.FLORAMAN, MonsterSpecies.DARKEYE),
+        # Any Devil + Bug -> Eyeball
+        (MonsterSpecies.PIXY, MonsterSpecies.CATAPILA, MonsterSpecies.EYEBALL),
+        (MonsterSpecies.DARKEYE, MonsterSpecies.BUTTERFLY, MonsterSpecies.EYEBALL),
+        (MonsterSpecies.SKULRIDER, MonsterSpecies.ARMYANT, MonsterSpecies.EYEBALL),
+        # Any Devil + Zombie -> SkulRider (avoid GateGuard + Zombie -> ArcDemon; avoid EvilBeast/SkulRider + Zombie -> Gigantes)
+        (MonsterSpecies.PIXY, MonsterSpecies.SPOOKY, MonsterSpecies.SKULRIDER),
+        (MonsterSpecies.DEMONITE, MonsterSpecies.MUMMY, MonsterSpecies.SKULRIDER),
+        (MonsterSpecies.PIXY, MonsterSpecies.PUTREPUP, MonsterSpecies.SKULRIDER),
+        # Any Devil + Material -> EvilBeast
+        (MonsterSpecies.PIXY, MonsterSpecies.GOLDGOLEM, MonsterSpecies.EVILBEAST),
+        (MonsterSpecies.DARKEYE, MonsterSpecies.BALZAK, MonsterSpecies.EVILBEAST),
+        (MonsterSpecies.GREMLIN, MonsterSpecies.CURSELAMP, MonsterSpecies.EVILBEAST),
+        # Any Devil + Dragon -> MedusaEye (avoid Ogre + Dragon -> ArcDemon; avoid ArcDemon+ Dragon -> Centasaur)
+        (MonsterSpecies.PIXY, MonsterSpecies.DRAGON, MonsterSpecies.MEDUSAEYE),
+        (MonsterSpecies.DEMONITE, MonsterSpecies.TORTRAGON, MonsterSpecies.MEDUSAEYE),
+        (MonsterSpecies.DARKEYE, MonsterSpecies.PTERANOD, MonsterSpecies.MEDUSAEYE),
+        # ArcDemon + Zombie -> Lionex
+        (MonsterSpecies.ARCDEMON, MonsterSpecies.SPOOKY, MonsterSpecies.LIONEX),
+        (MonsterSpecies.ARCDEMON, MonsterSpecies.MUMMY, MonsterSpecies.LIONEX),
+        # Any Devil + LizardMan -> Lionex (avoid ArcDemon -> ArcDemon+Zombie wins for different mate)
+        (MonsterSpecies.PIXY, MonsterSpecies.LIZARDMAN, MonsterSpecies.LIONEX),
+        (MonsterSpecies.DARKEYE, MonsterSpecies.LIZARDMAN, MonsterSpecies.LIONEX),
+        # ArcDemon + Beast -> GoatHorn
+        (MonsterSpecies.ARCDEMON, MonsterSpecies.ANTEATER, MonsterSpecies.GOATHORN),
+        (MonsterSpecies.ARCDEMON, MonsterSpecies.CATFLY, MonsterSpecies.GOATHORN),
+        # Any Devil + DarkHorn -> GoatHorn (avoid ArcDemon; ArcDemon+DarkHorn -> GoatHorn as species+family)
+        (MonsterSpecies.PIXY, MonsterSpecies.DARKHORN, MonsterSpecies.GOATHORN),
+        (MonsterSpecies.EYEBALL, MonsterSpecies.DARKHORN, MonsterSpecies.GOATHORN),
+        # Any Devil + BeanMan -> Orc
+        (MonsterSpecies.PIXY, MonsterSpecies.BEANMAN, MonsterSpecies.ORC),
+        (MonsterSpecies.DEMONITE, MonsterSpecies.BEANMAN, MonsterSpecies.ORC),
+        # GateGuard + Dragon -> Ogre
+        (MonsterSpecies.GATEGUARD, MonsterSpecies.DRAGON, MonsterSpecies.OGRE),
+        (MonsterSpecies.GATEGUARD, MonsterSpecies.PTERANOD, MonsterSpecies.OGRE),
+        # Any Devil + Hammerman -> Ogre (avoid GateGuard; GateGuard+Dragon -> Ogre)
+        (MonsterSpecies.PIXY, MonsterSpecies.HAMMERMAN, MonsterSpecies.OGRE),
+        (MonsterSpecies.DARKEYE, MonsterSpecies.HAMMERMAN, MonsterSpecies.OGRE),
+        # Demonite + Demonite -> GateGuard
+        (MonsterSpecies.DEMONITE, MonsterSpecies.DEMONITE, MonsterSpecies.GATEGUARD),
+        # Ogre + Zombie -> GateGuard
+        (MonsterSpecies.OGRE, MonsterSpecies.SPOOKY, MonsterSpecies.GATEGUARD),
+        (MonsterSpecies.OGRE, MonsterSpecies.MUMMY, MonsterSpecies.GATEGUARD),
+        # OneEyeClown + OneEyeClown -> ChopClown
+        (
+            MonsterSpecies.ONEEYECLOWN,
+            MonsterSpecies.ONEEYECLOWN,
+            MonsterSpecies.CHOPCLOWN,
+        ),
+        # Any Devil + MadDragon -> Grendal (avoid [SkulRider, EvilBeast, Gremlin, MedusaEye] + Dragon -> AgDevil)
+        (MonsterSpecies.PIXY, MonsterSpecies.MADDRAGON, MonsterSpecies.GRENDAL),
+        (MonsterSpecies.DARKEYE, MonsterSpecies.MADDRAGON, MonsterSpecies.GRENDAL),
+        # ArcDemon + GateGuard -> Akubar
+        (MonsterSpecies.ARCDEMON, MonsterSpecies.GATEGUARD, MonsterSpecies.AKUBAR),
+        # Grendal + Grendal -> Akubar
+        (MonsterSpecies.GRENDAL, MonsterSpecies.GRENDAL, MonsterSpecies.AKUBAR),
+        # Any Devil + RogueNite -> MadKnight
+        (MonsterSpecies.PIXY, MonsterSpecies.ROGUENITE, MonsterSpecies.MADKNIGHT),
+        (MonsterSpecies.GREMLIN, MonsterSpecies.ROGUENITE, MonsterSpecies.MADKNIGHT),
+        # Any Devil + BigEye -> Gigantes
+        (MonsterSpecies.PIXY, MonsterSpecies.BIGEYE, MonsterSpecies.GIGANTES),
+        (MonsterSpecies.DARKEYE, MonsterSpecies.BIGEYE, MonsterSpecies.GIGANTES),
+        # SkulRider/EvilBeast + Zombie -> Gigantes (family+family Devil+Zombie -> SkulRider comes first; species list wins)
+        (MonsterSpecies.SKULRIDER, MonsterSpecies.SPOOKY, MonsterSpecies.GIGANTES),
+        (MonsterSpecies.EVILBEAST, MonsterSpecies.MUMMY, MonsterSpecies.GIGANTES),
+        # ArcDemon + Dragon -> Centasaur
+        (MonsterSpecies.ARCDEMON, MonsterSpecies.DRAGON, MonsterSpecies.CENTASAUR),
+        (MonsterSpecies.ARCDEMON, MonsterSpecies.TORTRAGON, MonsterSpecies.CENTASAUR),
+        # Ogre/GateGuard + Beast -> Centasaur
+        (MonsterSpecies.OGRE, MonsterSpecies.ANTEATER, MonsterSpecies.CENTASAUR),
+        (MonsterSpecies.GATEGUARD, MonsterSpecies.PILLOWRAT, MonsterSpecies.CENTASAUR),
+        # Any Devil + ArmorPede -> EvilArmor
+        (MonsterSpecies.PIXY, MonsterSpecies.ARMORPEDE, MonsterSpecies.EVILARMOR),
+        (MonsterSpecies.SKULRIDER, MonsterSpecies.ARMORPEDE, MonsterSpecies.EVILARMOR),
+        # ArcDemon/Ogre/GateGuard + Material -> EvilArmor
+        (MonsterSpecies.ARCDEMON, MonsterSpecies.GOLDGOLEM, MonsterSpecies.EVILARMOR),
+        (MonsterSpecies.OGRE, MonsterSpecies.BALZAK, MonsterSpecies.EVILARMOR),
+        (MonsterSpecies.GATEGUARD, MonsterSpecies.CURSELAMP, MonsterSpecies.EVILARMOR),
+        # Akubar + RainHawk / RainHawk + Akubar -> Jamirus
+        (MonsterSpecies.AKUBAR, MonsterSpecies.RAINHAWK, MonsterSpecies.JAMIRUS),
+        (MonsterSpecies.RAINHAWK, MonsterSpecies.AKUBAR, MonsterSpecies.JAMIRUS),
+        # Centasaur + GoldGolem / GoldGolem + Centasaur -> Durran
+        (MonsterSpecies.CENTASAUR, MonsterSpecies.GOLDGOLEM, MonsterSpecies.DURRAN),
+        (MonsterSpecies.GOLDGOLEM, MonsterSpecies.CENTASAUR, MonsterSpecies.DURRAN),
+        # Any Devil + Beast -> Gremlin (avoid ArcDemon + Beast -> GoatHorn; avoid [SkulRider, EvilBeast, Gremlin, MedusaEye] + Beast -> Grendal)
+        (MonsterSpecies.PIXY, MonsterSpecies.ANTEATER, MonsterSpecies.GREMLIN),
+        (MonsterSpecies.EYEBALL, MonsterSpecies.PILLOWRAT, MonsterSpecies.GREMLIN),
+        (MonsterSpecies.DARKEYE, MonsterSpecies.WILDAPE, MonsterSpecies.GREMLIN),
+        # [SkulRider, EvilBeast, Gremlin, MedusaEye] + Dragon -> AgDevil
+        (MonsterSpecies.SKULRIDER, MonsterSpecies.DRAGON, MonsterSpecies.AGDEVIL),
+        (MonsterSpecies.EVILBEAST, MonsterSpecies.MINIDRAK, MonsterSpecies.AGDEVIL),
+        (MonsterSpecies.GREMLIN, MonsterSpecies.TORTRAGON, MonsterSpecies.AGDEVIL),
+        (MonsterSpecies.MEDUSAEYE, MonsterSpecies.PTERANOD, MonsterSpecies.AGDEVIL),
+        # Pixy + Slime -> OneEyeClown (species+family; avoid Devil+Slime -> Pixy when pedigree is Pixy)
+        (MonsterSpecies.PIXY, MonsterSpecies.SLIME, MonsterSpecies.ONEEYECLOWN),
+        # [MedusaEye, OneEyeClown, Gremlin] + Zombie -> MedusaEye
+        (MonsterSpecies.MEDUSAEYE, MonsterSpecies.SPOOKY, MonsterSpecies.MEDUSAEYE),
+        (MonsterSpecies.ONEEYECLOWN, MonsterSpecies.MUMMY, MonsterSpecies.MEDUSAEYE),
+        (MonsterSpecies.GREMLIN, MonsterSpecies.PUTREPUP, MonsterSpecies.MEDUSAEYE),
+        # [SkulRider, EvilBeast, Gremlin, MedusaEye] + Beast -> Grendal (avoid Gremlin pedigree: Devil+Beast -> Gremlin)
+        (MonsterSpecies.SKULRIDER, MonsterSpecies.ANTEATER, MonsterSpecies.GRENDAL),
+        (MonsterSpecies.EVILBEAST, MonsterSpecies.GRIZZLY, MonsterSpecies.GRENDAL),
+        (MonsterSpecies.MEDUSAEYE, MonsterSpecies.PILLOWRAT, MonsterSpecies.GRENDAL),
+        # [AgDevil, Grendal, Gigantes] + SpotKing/KingSlime/etc -> ArcDemon
+        (MonsterSpecies.AGDEVIL, MonsterSpecies.SPOTKING, MonsterSpecies.ARCDEMON),
+        (MonsterSpecies.GRENDAL, MonsterSpecies.KINGSLIME, MonsterSpecies.ARCDEMON),
+        (MonsterSpecies.GIGANTES, MonsterSpecies.METALKING, MonsterSpecies.ARCDEMON),
+        # [AgDevil, Grendal, Gigantes] + GulpBeast/Unicorn/etc -> Ogre
+        (MonsterSpecies.AGDEVIL, MonsterSpecies.GULPBEAST, MonsterSpecies.OGRE),
+        (MonsterSpecies.GRENDAL, MonsterSpecies.UNICORN, MonsterSpecies.OGRE),
+        (MonsterSpecies.GIGANTES, MonsterSpecies.DIGSTER, MonsterSpecies.OGRE),
+        (MonsterSpecies.GIGANTES, MonsterSpecies.ROBOSTER, MonsterSpecies.OGRE),
+        # [AgDevil, Grendal, Gigantes] + SlimeBorg/Swordgon/etc -> GateGuard
+        (MonsterSpecies.AGDEVIL, MonsterSpecies.SLIMEBORG, MonsterSpecies.GATEGUARD),
+        (MonsterSpecies.GRENDAL, MonsterSpecies.SWORDGON, MonsterSpecies.GATEGUARD),
+        (MonsterSpecies.GIGANTES, MonsterSpecies.COATOL, MonsterSpecies.GATEGUARD),
+    ],
+    ids=[
+        "gremlin_slime",
+        "darkeye_boxslime",
+        "skulrider_spotslime",
+        "gateguard_spooky",
+        "gateguard_mummy",
+        "ogre_dragon",
+        "ogre_minidrak",
+        "pixy_dracolord1",
+        "darkeye_baramos",
+        "pixy_dracky",
+        "darkeye_florajay",
+        "gremlin_bullbird",
+        "pixy_fireweed",
+        "demonite_amberweed",
+        "eyeball_floraman",
+        "pixy_catapila",
+        "darkeye_butterfly",
+        "skulrider_armyant",
+        "pixy_spooky",
+        "demonite_mummy",
+        "pixy_putrepup",
+        "pixy_goldgolem",
+        "darkeye_balzak",
+        "gremlin_curselamp",
+        "pixy_dragon",
+        "demonite_tortragon",
+        "darkeye_pteranod",
+        "arcdemon_spooky",
+        "arcdemon_mummy",
+        "pixy_lizardman",
+        "darkeye_lizardman",
+        "arcdemon_anteater",
+        "arcdemon_catfly",
+        "pixy_darkhorn",
+        "eyeball_darkhorn",
+        "pixy_beanman",
+        "demonite_beanman",
+        "gateguard_dragon",
+        "gateguard_pteranod",
+        "pixy_hammerman",
+        "darkeye_hammerman",
+        "demonite_demonite",
+        "ogre_spooky",
+        "ogre_mummy",
+        "oneeyeclown_oneeyeclown",
+        "pixy_maddragon",
+        "darkeye_maddragon",
+        "arcdemon_gateguard",
+        "grendal_grendal",
+        "pixy_roguenite",
+        "gremlin_roguenite",
+        "pixy_bigeye",
+        "darkeye_bigeye",
+        "skulrider_spooky",
+        "evilbeast_mummy",
+        "arcdemon_dragon",
+        "arcdemon_tortragon",
+        "ogre_anteater",
+        "gateguard_pillowrat",
+        "pixy_armorpede",
+        "skulrider_armorpede",
+        "arcdemon_goldgolem",
+        "ogre_balzak",
+        "gateguard_curselamp",
+        "akubar_rainhawk",
+        "rainhawk_akubar",
+        "centasaur_goldgolem",
+        "goldgolem_centasaur",
+        "pixy_anteater",
+        "eyeball_pillowrat",
+        "darkeye_wildape",
+        "skulrider_dragon",
+        "evilbeast_minidrak",
+        "gremlin_tortragon",
+        "medusaeye_pteranod",
+        "pixy_slime",
+        "medusaeye_spooky",
+        "oneeyeclown_mummy",
+        "gremlin_putrepup",
+        "skulrider_anteater",
+        "evilbeast_grizzly",
+        "medusaeye_pillowrat",
+        "agdevil_spotking",
+        "grendal_kingslime",
+        "gigantes_metalking",
+        "agdevil_gulpbeast",
+        "grendal_unicorn",
+        "gigantes_digster",
+        "gigantes_roboster",
+        "agdevil_slimeborg",
+        "grendal_swordgon",
+        "gigantes_coatol",
+    ],
+)
+def test_devil_breeding_combos(
+    pedigree: Species,
+    mate: Species,
+    expected: Species,
+) -> None:
+    """
+    All combos that result in a Devil-class monster (Rules sheet Devil section).
+
+    Every expected is Devil family. Mates from other families appear only as the second argument.
+    """
+    result = get_breeding_result(pedigree=pedigree, mate=mate)
+    assert result == expected
