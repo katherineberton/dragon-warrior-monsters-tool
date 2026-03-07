@@ -2051,3 +2051,237 @@ def test_zombie_breeding_combos(
     """
     result = get_breeding_result(pedigree=pedigree, mate=mate)
     assert result == expected
+
+
+@pytest.mark.parametrize(
+    ("pedigree", "mate", "expected"),
+    [
+        # Any Material + Slime -> JewelBag (avoid JewelBag + Slime -> Goopi; Material + BoxSlime -> Mimic; Material + Snaily -> EvilPot)
+        (MonsterSpecies.EVILWAND, MonsterSpecies.SLIME, MonsterSpecies.JEWELBAG),
+        (MonsterSpecies.MADCANDLE, MonsterSpecies.SPOTSLIME, MonsterSpecies.JEWELBAG),
+        (MonsterSpecies.BALZAK, MonsterSpecies.DRAKSLIME, MonsterSpecies.JEWELBAG),
+        # JewelBag + Slime -> Goopi
+        (MonsterSpecies.JEWELBAG, MonsterSpecies.SLIME, MonsterSpecies.GOOPI),
+        (MonsterSpecies.JEWELBAG, MonsterSpecies.BOXSLIME, MonsterSpecies.GOOPI),
+        # Any Material + Dragon -> EvilWand
+        (MonsterSpecies.JEWELBAG, MonsterSpecies.DRAGON, MonsterSpecies.EVILWAND),
+        (MonsterSpecies.MADCANDLE, MonsterSpecies.MINIDRAK, MonsterSpecies.EVILWAND),
+        (MonsterSpecies.CURSELAMP, MonsterSpecies.TORTRAGON, MonsterSpecies.EVILWAND),
+        # Any Material + Beast -> MadCandle (avoid Material + Grizzly/Trumpeter/KingLeo/SkulRider -> Roboster; Roboster + KingLeo -> IceMan)
+        (MonsterSpecies.JEWELBAG, MonsterSpecies.ANTEATER, MonsterSpecies.MADCANDLE),
+        (MonsterSpecies.EVILWAND, MonsterSpecies.CATFLY, MonsterSpecies.MADCANDLE),
+        (MonsterSpecies.BALZAK, MonsterSpecies.PILLOWRAT, MonsterSpecies.MADCANDLE),
+        # Any Material + Bird -> CoilBird (avoid Roboster + Bird -> CurseLamp)
+        (MonsterSpecies.JEWELBAG, MonsterSpecies.DRACKY, MonsterSpecies.COILBIRD),
+        (MonsterSpecies.EVILWAND, MonsterSpecies.BULLBIRD, MonsterSpecies.COILBIRD),
+        (MonsterSpecies.GOLDGOLEM, MonsterSpecies.PHOENIX, MonsterSpecies.COILBIRD),
+        # Any Material + Plant -> Facer (avoid Material + WingTree -> CurseLamp)
+        (MonsterSpecies.JEWELBAG, MonsterSpecies.FIREWEED, MonsterSpecies.FACER),
+        (MonsterSpecies.EVILWAND, MonsterSpecies.AMBERWEED, MonsterSpecies.FACER),
+        (MonsterSpecies.MADCANDLE, MonsterSpecies.FLORAMAN, MonsterSpecies.FACER),
+        # Any Material + Bug -> SpikyBoy (avoid Material + HornBeet/Digster -> StoneMan)
+        (MonsterSpecies.JEWELBAG, MonsterSpecies.CATAPILA, MonsterSpecies.SPIKYBOY),
+        (MonsterSpecies.EVILWAND, MonsterSpecies.BUTTERFLY, MonsterSpecies.SPIKYBOY),
+        (MonsterSpecies.MADCANDLE, MonsterSpecies.ARMYANT, MonsterSpecies.SPIKYBOY),
+        # Any Material + Devil -> MadMirror (avoid Gismo + Devil -> EvilPot; LavaMan/IceMan + Devil -> Balzak)
+        (MonsterSpecies.JEWELBAG, MonsterSpecies.DEMONITE, MonsterSpecies.MADMIRROR),
+        (MonsterSpecies.EVILWAND, MonsterSpecies.ARCDEMON, MonsterSpecies.MADMIRROR),
+        (MonsterSpecies.CURSELAMP, MonsterSpecies.GREMLIN, MonsterSpecies.MADMIRROR),
+        # Any Material + Zombie -> RogueNite
+        (MonsterSpecies.JEWELBAG, MonsterSpecies.SPOOKY, MonsterSpecies.ROGUENITE),
+        (MonsterSpecies.EVILWAND, MonsterSpecies.MUMMY, MonsterSpecies.ROGUENITE),
+        (MonsterSpecies.GOLDGOLEM, MonsterSpecies.DEADNITE, MonsterSpecies.ROGUENITE),
+        # Roboster + KingLeo -> IceMan
+        (MonsterSpecies.ROBOSTER, MonsterSpecies.KINGLEO, MonsterSpecies.ICEMAN),
+        # Roboster + Zombie -> Mimic
+        (MonsterSpecies.ROBOSTER, MonsterSpecies.SPOOKY, MonsterSpecies.MIMIC),
+        (MonsterSpecies.ROBOSTER, MonsterSpecies.MUMMY, MonsterSpecies.MIMIC),
+        # Material + BoxSlime -> Mimic
+        (MonsterSpecies.EVILWAND, MonsterSpecies.BOXSLIME, MonsterSpecies.MIMIC),
+        (MonsterSpecies.BALZAK, MonsterSpecies.BOXSLIME, MonsterSpecies.MIMIC),
+        # Goopi + Goopi -> MudDoll
+        (MonsterSpecies.GOOPI, MonsterSpecies.GOOPI, MonsterSpecies.MUDDOLL),
+        # MudDoll + MudDoll -> Golem
+        (MonsterSpecies.MUDDOLL, MonsterSpecies.MUDDOLL, MonsterSpecies.GOLEM),
+        # Material + GiantWorm -> SabreMan
+        (MonsterSpecies.JEWELBAG, MonsterSpecies.GIANTWORM, MonsterSpecies.SABREMAN),
+        (MonsterSpecies.EVILWAND, MonsterSpecies.GIANTWORM, MonsterSpecies.SABREMAN),
+        # Roboster + Bird -> CurseLamp
+        (MonsterSpecies.ROBOSTER, MonsterSpecies.DRACKY, MonsterSpecies.CURSELAMP),
+        (MonsterSpecies.ROBOSTER, MonsterSpecies.BIGROOST, MonsterSpecies.CURSELAMP),
+        # Material + WingTree -> CurseLamp
+        (MonsterSpecies.JEWELBAG, MonsterSpecies.WINGTREE, MonsterSpecies.CURSELAMP),
+        (MonsterSpecies.GOLDGOLEM, MonsterSpecies.WINGTREE, MonsterSpecies.CURSELAMP),
+        # Gismo + Devil -> EvilPot
+        (MonsterSpecies.GISMO, MonsterSpecies.DEMONITE, MonsterSpecies.EVILPOT),
+        (MonsterSpecies.GISMO, MonsterSpecies.ARCDEMON, MonsterSpecies.EVILPOT),
+        # Material + Snaily -> EvilPot (avoid JewelBag + Slime -> Goopi when pedigree is JewelBag)
+        (MonsterSpecies.MADCANDLE, MonsterSpecies.SNAILY, MonsterSpecies.EVILPOT),
+        (MonsterSpecies.EVILWAND, MonsterSpecies.SNAILY, MonsterSpecies.EVILPOT),
+        # SpikyBoy + SpikyBoy -> BombCrag
+        (MonsterSpecies.SPIKYBOY, MonsterSpecies.SPIKYBOY, MonsterSpecies.BOMBCRAG),
+        # Roboster + Bug -> BombCrag
+        (MonsterSpecies.ROBOSTER, MonsterSpecies.CATAPILA, MonsterSpecies.BOMBCRAG),
+        (MonsterSpecies.ROBOSTER, MonsterSpecies.BUTTERFLY, MonsterSpecies.BOMBCRAG),
+        # IceMan + LavaMan -> GoldGolem (recipe defined as IceMan + LavaMan only, not symmetric)
+        (MonsterSpecies.ICEMAN, MonsterSpecies.LAVAMAN, MonsterSpecies.GOLDGOLEM),
+        # Any Material + Boss -> Balzak
+        (MonsterSpecies.JEWELBAG, MonsterSpecies.DRACOLORD1, MonsterSpecies.BALZAK),
+        (MonsterSpecies.EVILWAND, MonsterSpecies.BARAMOS, MonsterSpecies.BALZAK),
+        (MonsterSpecies.GOLDGOLEM, MonsterSpecies.HARGON, MonsterSpecies.BALZAK),
+        # LavaMan/IceMan + Devil -> Balzak
+        (MonsterSpecies.LAVAMAN, MonsterSpecies.DEMONITE, MonsterSpecies.BALZAK),
+        (MonsterSpecies.ICEMAN, MonsterSpecies.ARCDEMON, MonsterSpecies.BALZAK),
+        # Material + Lipsy -> Voodoll
+        (MonsterSpecies.JEWELBAG, MonsterSpecies.LIPSY, MonsterSpecies.VOODOLL),
+        (MonsterSpecies.EVILWAND, MonsterSpecies.LIPSY, MonsterSpecies.VOODOLL),
+        # Material + Andreal -> MetalDrak (avoid MetalDrak,Roboster + Dragon -> MetalDrak)
+        (MonsterSpecies.JEWELBAG, MonsterSpecies.ANDREAL, MonsterSpecies.METALDRAK),
+        (MonsterSpecies.CURSELAMP, MonsterSpecies.ANDREAL, MonsterSpecies.METALDRAK),
+        # MetalDrak,Roboster + Dragon -> MetalDrak
+        (MonsterSpecies.METALDRAK, MonsterSpecies.DRAGON, MonsterSpecies.METALDRAK),
+        (MonsterSpecies.ROBOSTER, MonsterSpecies.MINIDRAK, MonsterSpecies.METALDRAK),
+        # Golem,StoneMan + Golem -> StoneMan
+        (MonsterSpecies.GOLEM, MonsterSpecies.GOLEM, MonsterSpecies.STONEMAN),
+        (MonsterSpecies.STONEMAN, MonsterSpecies.GOLEM, MonsterSpecies.STONEMAN),
+        # Material + HornBeet/Digster -> StoneMan
+        (MonsterSpecies.JEWELBAG, MonsterSpecies.HORNBEET, MonsterSpecies.STONEMAN),
+        (MonsterSpecies.EVILWAND, MonsterSpecies.DIGSTER, MonsterSpecies.STONEMAN),
+        # MetalDrak + [Skullgon, WhiteKing] -> IceMan
+        (MonsterSpecies.METALDRAK, MonsterSpecies.SKULLGON, MonsterSpecies.ICEMAN),
+        (MonsterSpecies.METALDRAK, MonsterSpecies.WHITEKING, MonsterSpecies.ICEMAN),
+        # Material + [GulpBeast, Grizzly, Trumpeter, KingLeo, SkulRider] -> Roboster (avoid Material + Beast -> MadCandle)
+        (MonsterSpecies.JEWELBAG, MonsterSpecies.GULPBEAST, MonsterSpecies.ROBOSTER),
+        (MonsterSpecies.GOLDGOLEM, MonsterSpecies.GRIZZLY, MonsterSpecies.ROBOSTER),
+        (MonsterSpecies.GOLDGOLEM, MonsterSpecies.TRUMPETER, MonsterSpecies.ROBOSTER),
+        (MonsterSpecies.BALZAK, MonsterSpecies.SKULRIDER, MonsterSpecies.ROBOSTER),
+        # MetalDrak + [Orochi, KingLeo, ZapBird, ArcDemon, Centasaur] -> LavaMan
+        (MonsterSpecies.METALDRAK, MonsterSpecies.OROCHI, MonsterSpecies.LAVAMAN),
+        (MonsterSpecies.METALDRAK, MonsterSpecies.KINGLEO, MonsterSpecies.LAVAMAN),
+        (MonsterSpecies.METALDRAK, MonsterSpecies.ARCDEMON, MonsterSpecies.LAVAMAN),
+        # SabreMan + [SlimeBorg, GreatDrak, ...] -> Roboster
+        (MonsterSpecies.SABREMAN, MonsterSpecies.SLIMEBORG, MonsterSpecies.ROBOSTER),
+        (MonsterSpecies.SABREMAN, MonsterSpecies.GREATDRAK, MonsterSpecies.ROBOSTER),
+        (MonsterSpecies.SABREMAN, MonsterSpecies.UNICORN, MonsterSpecies.ROBOSTER),
+        # Golem,StoneMan + [DrakSlime, Snaily, RockSlime, Slimenite] -> Voodoll
+        (MonsterSpecies.GOLEM, MonsterSpecies.DRAKSLIME, MonsterSpecies.VOODOLL),
+        (MonsterSpecies.STONEMAN, MonsterSpecies.SNAILY, MonsterSpecies.VOODOLL),
+        (MonsterSpecies.GOLEM, MonsterSpecies.ROCKSLIME, MonsterSpecies.VOODOLL),
+        # [Andreal, Spikerous, GreatDrak] + [SlimeBorg, KingSlime, ...] -> MetalDrak
+        (MonsterSpecies.ANDREAL, MonsterSpecies.SLIMEBORG, MonsterSpecies.METALDRAK),
+        (MonsterSpecies.SPIKEROUS, MonsterSpecies.KINGSLIME, MonsterSpecies.METALDRAK),
+        (MonsterSpecies.GREATDRAK, MonsterSpecies.DIGSTER, MonsterSpecies.METALDRAK),
+        # [EvilWand, Voodoll, Golem, StoneMan] + [LandOwl, MadGoose, Phoenix, FunkyBird] -> SabreMan
+        (MonsterSpecies.EVILWAND, MonsterSpecies.LANDOWL, MonsterSpecies.SABREMAN),
+        (MonsterSpecies.VOODOLL, MonsterSpecies.MADGOOSE, MonsterSpecies.SABREMAN),
+        (MonsterSpecies.GOLEM, MonsterSpecies.PHOENIX, MonsterSpecies.SABREMAN),
+        (MonsterSpecies.STONEMAN, MonsterSpecies.FUNKYBIRD, MonsterSpecies.SABREMAN),
+        # [MadCandle, MadMirror, Goopi] + [DrakSlime, Wyvern, ...] -> Gismo
+        (MonsterSpecies.MADCANDLE, MonsterSpecies.DRAKSLIME, MonsterSpecies.GISMO),
+        (MonsterSpecies.MADMIRROR, MonsterSpecies.WYVERN, MonsterSpecies.GISMO),
+        (MonsterSpecies.GOOPI, MonsterSpecies.PHOENIX, MonsterSpecies.GISMO),
+        (MonsterSpecies.MADCANDLE, MonsterSpecies.FIREWEED, MonsterSpecies.GISMO),
+    ],
+    ids=[
+        "evilwand_slime",
+        "madcandle_spotslime",
+        "balzak_drakslime",
+        "jewelbag_slime",
+        "jewelbag_boxslime",
+        "jewelbag_dragon",
+        "madcandle_minidrak",
+        "curselamp_tortragon",
+        "jewelbag_anteater",
+        "evilwand_catfly",
+        "balzak_pillowrat",
+        "jewelbag_dracky",
+        "evilwand_bullbird",
+        "goldgolem_phoenix",
+        "jewelbag_fireweed",
+        "evilwand_amberweed",
+        "madcandle_floraman",
+        "jewelbag_catapila",
+        "evilwand_butterfly",
+        "madcandle_armyant",
+        "jewelbag_demonite",
+        "evilwand_arcdemon",
+        "curselamp_gremlin",
+        "jewelbag_spooky",
+        "evilwand_mummy",
+        "goldgolem_deadnite",
+        "roboster_kingleo",
+        "roboster_spooky",
+        "roboster_mummy",
+        "evilwand_boxslime",
+        "balzak_boxslime",
+        "goopi_goopi",
+        "muddoll_muddoll",
+        "jewelbag_giantworm",
+        "evilwand_giantworm",
+        "roboster_dracky",
+        "roboster_bigroost",
+        "jewelbag_wingtree",
+        "goldgolem_wingtree",
+        "gismo_demonite",
+        "gismo_arcdemon",
+        "madcandle_snaily",
+        "evilwand_snaily",
+        "spikyboy_spikyboy",
+        "roboster_catapila",
+        "roboster_butterfly",
+        "iceman_lavaman",
+        "jewelbag_dracolord1",
+        "evilwand_baramos",
+        "goldgolem_hargon",
+        "lavaman_demonite",
+        "iceman_arcdemon",
+        "jewelbag_lipsy",
+        "evilwand_lipsy",
+        "jewelbag_andreal",
+        "curselamp_andreal",
+        "metaldrak_dragon",
+        "roboster_minidrak",
+        "golem_golem",
+        "stoneman_golem",
+        "jewelbag_hornbeet",
+        "evilwand_digster",
+        "metaldrak_skullgon",
+        "metaldrak_whiteking",
+        "jewelbag_gulpbeast",
+        "goldgolem_grizzly",
+        "goldgolem_trumpeter",
+        "balzak_skulrider",
+        "metaldrak_orochi",
+        "metaldrak_kingleo",
+        "metaldrak_arcdemon",
+        "sabreman_slimeborg",
+        "sabreman_greatdrak",
+        "sabreman_unicorn",
+        "golem_drakslime",
+        "stoneman_snaily",
+        "golem_rockslime",
+        "andreal_slimeborg",
+        "spikerous_kingslime",
+        "greatdrak_digster",
+        "evilwand_landowl",
+        "voodoll_madgoose",
+        "golem_phoenix",
+        "stoneman_funkybird",
+        "madcandle_drakslime",
+        "madmirror_wyvern",
+        "goopi_phoenix",
+        "madcandle_fireweed",
+    ],
+)
+def test_material_breeding_combos(
+    pedigree: Species,
+    mate: Species,
+    expected: Species,
+) -> None:
+    """
+    All combos that result in a Material-class monster (Rules sheet Material section).
+
+    Every expected is Material family. Mates from other families appear only as the second argument.
+    """
+    result = get_breeding_result(pedigree=pedigree, mate=mate)
+    assert result == expected
