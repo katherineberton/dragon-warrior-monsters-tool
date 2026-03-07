@@ -14,14 +14,13 @@ exclude = [
     ".ruff_cache",
     ".svn",
     ".tox",
-    ".venv",
+    "dwm",
     "__pypackages__",
     "_build",
     "buck-out",
     "build",
     "dist",
     "node_modules",
-    "venv",
 ]
 
 # Same as Black
