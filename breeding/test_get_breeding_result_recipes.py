@@ -1,12 +1,4 @@
-"""
-Tests for breeding.utils.
-
-Slime and Dragon result combinations are derived from the Rules sheet
-in monster_breeding.xlsx (reference document for game rules).
-
-Class-based recipes (e.g. any Slime + any Dragon -> DrakSlime) are tested
-with multiple pedigree/mate species. Species-specific recipes use one or more pairs each.
-"""
+"""Tests for breeding.utils: get_breeding_result(pedigree, mate) returns expected species."""
 
 import pytest
 
@@ -24,25 +16,25 @@ from monsters.constants import MonsterSpecies, Species
         (MonsterSpecies.BOXSLIME, MonsterSpecies.DRAGON, MonsterSpecies.DRAKSLIME),
         (MonsterSpecies.DRAKSLIME, MonsterSpecies.PTERANOD, MonsterSpecies.DRAKSLIME),
         (MonsterSpecies.SPOTSLIME, MonsterSpecies.ANDREAL, MonsterSpecies.DRAKSLIME),
-        # Any Slime + any Beast -> Spotslime (avoid Beast mates that give FangSlime, e.g. Almiraj, GulpBeast)
+        # Any Slime + any Beast -> Spotslime
         (MonsterSpecies.SLIME, MonsterSpecies.ANTEATER, MonsterSpecies.SPOTSLIME),
         (MonsterSpecies.SLIME, MonsterSpecies.CATFLY, MonsterSpecies.SPOTSLIME),
         (MonsterSpecies.SLIME, MonsterSpecies.WILDAPE, MonsterSpecies.SPOTSLIME),
         (MonsterSpecies.BOXSLIME, MonsterSpecies.GRIZZLY, MonsterSpecies.SPOTSLIME),
         (MonsterSpecies.WINGSLIME, MonsterSpecies.ANTEATER, MonsterSpecies.SPOTSLIME),
-        # Any Slime + any Bird -> Wingslime (avoid Picky -> Healer)
+        # Any Slime + any Bird -> Wingslime
         (MonsterSpecies.SLIME, MonsterSpecies.DRACKY, MonsterSpecies.WINGSLIME),
         (MonsterSpecies.SLIME, MonsterSpecies.BULLBIRD, MonsterSpecies.WINGSLIME),
         (MonsterSpecies.SLIME, MonsterSpecies.PHOENIX, MonsterSpecies.WINGSLIME),
         (MonsterSpecies.TREESLIME, MonsterSpecies.DRACKY, MonsterSpecies.WINGSLIME),
         (MonsterSpecies.SNAILY, MonsterSpecies.BIGROOST, MonsterSpecies.WINGSLIME),
-        # Any Slime + any Plant -> Treeslime (avoid MadPlant -> Healer)
+        # Any Slime + any Plant -> Treeslime
         (MonsterSpecies.SLIME, MonsterSpecies.FIREWEED, MonsterSpecies.TREESLIME),
         (MonsterSpecies.SLIME, MonsterSpecies.AMBERWEED, MonsterSpecies.TREESLIME),
         (MonsterSpecies.SLIME, MonsterSpecies.FLORAMAN, MonsterSpecies.TREESLIME),
         (MonsterSpecies.DRAKSLIME, MonsterSpecies.FIREWEED, MonsterSpecies.TREESLIME),
         (MonsterSpecies.HEALER, MonsterSpecies.CACTIBALL, MonsterSpecies.TREESLIME),
-        # Any Slime + any Bug -> Snaily (avoid poisongon, giantmoth -> Babble)
+        # Any Slime + any Bug -> Snaily
         (MonsterSpecies.SLIME, MonsterSpecies.CATAPILA, MonsterSpecies.SNAILY),
         (MonsterSpecies.SLIME, MonsterSpecies.BUTTERFLY, MonsterSpecies.SNAILY),
         (MonsterSpecies.SLIME, MonsterSpecies.ARMYANT, MonsterSpecies.SNAILY),
@@ -54,7 +46,7 @@ from monsters.constants import MonsterSpecies, Species
         (MonsterSpecies.SLIME, MonsterSpecies.AGDEVIL, MonsterSpecies.SLIMENITE),
         (MonsterSpecies.BOXSLIME, MonsterSpecies.DEMONITE, MonsterSpecies.SLIMENITE),
         (MonsterSpecies.ROCKSLIME, MonsterSpecies.ARCDEMON, MonsterSpecies.SLIMENITE),
-        # Any Slime + any Material -> BoxSlime (mates that don't trigger other recipes, e.g. avoid GoldGolem with SpotKing/Kingslime/MetalKing -> GoldSlime)
+        # Any Slime + any Material -> BoxSlime
         (MonsterSpecies.SLIME, MonsterSpecies.GOLDGOLEM, MonsterSpecies.BOXSLIME),
         (MonsterSpecies.SLIME, MonsterSpecies.BALZAK, MonsterSpecies.BOXSLIME),
         (MonsterSpecies.SLIME, MonsterSpecies.CURSELAMP, MonsterSpecies.BOXSLIME),
@@ -66,30 +58,30 @@ from monsters.constants import MonsterSpecies, Species
         (MonsterSpecies.SLIME, MonsterSpecies.HARGON, MonsterSpecies.KINGSLIME),
         (MonsterSpecies.BOXSLIME, MonsterSpecies.DRACOLORD1, MonsterSpecies.KINGSLIME),
         (MonsterSpecies.HEALER, MonsterSpecies.SIDOH, MonsterSpecies.KINGSLIME),
-        # Species-specific: Babble (row 8) - slime + poisongon, giantmoth, or zombie
+        # Species-specific: Babble
         (MonsterSpecies.SLIME, MonsterSpecies.POISONGON, MonsterSpecies.BABBLE),
         (MonsterSpecies.SLIME, MonsterSpecies.GIANTMOTH, MonsterSpecies.BABBLE),
         (MonsterSpecies.SLIME, MonsterSpecies.SPOOKY, MonsterSpecies.BABBLE),
         (MonsterSpecies.BOXSLIME, MonsterSpecies.TREESLIME, MonsterSpecies.BOXSLIME),
-        # Healer (row 11) - slime + pillowrat, funkybird, madplant, copycat
+        # Healer
         (MonsterSpecies.SLIME, MonsterSpecies.PILLOWRAT, MonsterSpecies.HEALER),
         (MonsterSpecies.SLIME, MonsterSpecies.FUNKYBIRD, MonsterSpecies.HEALER),
         (MonsterSpecies.SLIME, MonsterSpecies.MADPLANT, MonsterSpecies.HEALER),
         (MonsterSpecies.SLIME, MonsterSpecies.COPYCAT, MonsterSpecies.HEALER),
-        # FangSlime (row 12) - slime + almiraj, gulpbeast, trumpeter, kingleo, darkhorn, madcat
+        # FangSlime
         (MonsterSpecies.SLIME, MonsterSpecies.ALMIRAJ, MonsterSpecies.FANGSLIME),
         (MonsterSpecies.SLIME, MonsterSpecies.GULPBEAST, MonsterSpecies.FANGSLIME),
         (MonsterSpecies.SLIME, MonsterSpecies.TRUMPETER, MonsterSpecies.FANGSLIME),
         (MonsterSpecies.SLIME, MonsterSpecies.KINGLEO, MonsterSpecies.FANGSLIME),
         (MonsterSpecies.SLIME, MonsterSpecies.DARKHORN, MonsterSpecies.FANGSLIME),
         (MonsterSpecies.SLIME, MonsterSpecies.MADCAT, MonsterSpecies.FANGSLIME),
-        # RockSlime (row 13) - slime + digster, deadnite, golem, stoneman, bombcrag
+        # RockSlime
         (MonsterSpecies.SLIME, MonsterSpecies.DIGSTER, MonsterSpecies.ROCKSLIME),
         (MonsterSpecies.SLIME, MonsterSpecies.DEADNITE, MonsterSpecies.ROCKSLIME),
         (MonsterSpecies.SLIME, MonsterSpecies.GOLEM, MonsterSpecies.ROCKSLIME),
         (MonsterSpecies.SLIME, MonsterSpecies.STONEMAN, MonsterSpecies.ROCKSLIME),
         (MonsterSpecies.SLIME, MonsterSpecies.BOMBCRAG, MonsterSpecies.ROCKSLIME),
-        # SlimeBorg (row 14) - [drakslime,slimenite,rockslime,metabble] + [swordgon,spikerous,greatdrak,battlerex,skydragon]
+        # SlimeBorg
         (MonsterSpecies.DRAKSLIME, MonsterSpecies.SWORDGON, MonsterSpecies.SLIMEBORG),
         (MonsterSpecies.DRAKSLIME, MonsterSpecies.SPIKEROUS, MonsterSpecies.SLIMEBORG),
         (MonsterSpecies.DRAKSLIME, MonsterSpecies.GREATDRAK, MonsterSpecies.SLIMEBORG),
@@ -100,7 +92,7 @@ from monsters.constants import MonsterSpecies, Species
         (MonsterSpecies.METABBLE, MonsterSpecies.SWORDGON, MonsterSpecies.SLIMEBORG),
         (MonsterSpecies.SLIME, MonsterSpecies.ROBOSTER, MonsterSpecies.SLIMEBORG),
         (MonsterSpecies.SLIME, MonsterSpecies.SKULLROO, MonsterSpecies.SLABBIT),
-        # SpotKing + any of [greatdrak, battlerex, ...] -> Kingslime (row 17 style)
+        # SpotKing + [greatdrak, battlerex, ...] -> Kingslime
         (MonsterSpecies.SPOTKING, MonsterSpecies.GREATDRAK, MonsterSpecies.KINGSLIME),
         (MonsterSpecies.SPOTKING, MonsterSpecies.BATTLEREX, MonsterSpecies.KINGSLIME),
         (MonsterSpecies.SPOTKING, MonsterSpecies.DIVINEGON, MonsterSpecies.KINGSLIME),
@@ -113,7 +105,7 @@ from monsters.constants import MonsterSpecies, Species
         (MonsterSpecies.SPOTKING, MonsterSpecies.CENTASAUR, MonsterSpecies.KINGSLIME),
         (MonsterSpecies.SPOTKING, MonsterSpecies.DEADNOBLE, MonsterSpecies.KINGSLIME),
         (MonsterSpecies.SPOTKING, MonsterSpecies.WHITEKING, MonsterSpecies.KINGSLIME),
-        # Kingslime + any of [greatdrak, battlerex, ...] -> SpotKing
+        # Kingslime + [greatdrak, battlerex, ...] -> SpotKing
         (MonsterSpecies.KINGSLIME, MonsterSpecies.GREATDRAK, MonsterSpecies.SPOTKING),
         (MonsterSpecies.KINGSLIME, MonsterSpecies.BATTLEREX, MonsterSpecies.SPOTKING),
         (MonsterSpecies.KINGSLIME, MonsterSpecies.DIVINEGON, MonsterSpecies.SPOTKING),
@@ -126,7 +118,7 @@ from monsters.constants import MonsterSpecies, Species
         (MonsterSpecies.KINGSLIME, MonsterSpecies.CENTASAUR, MonsterSpecies.SPOTKING),
         (MonsterSpecies.KINGSLIME, MonsterSpecies.DEADNOBLE, MonsterSpecies.SPOTKING),
         (MonsterSpecies.KINGSLIME, MonsterSpecies.WHITEKING, MonsterSpecies.SPOTKING),
-        # MetalKing + any of [greatdrak, battlerex, ...] -> SpotKing
+        # MetalKing + [greatdrak, battlerex, ...] -> SpotKing
         (MonsterSpecies.METALKING, MonsterSpecies.GREATDRAK, MonsterSpecies.SPOTKING),
         (MonsterSpecies.METALKING, MonsterSpecies.BATTLEREX, MonsterSpecies.SPOTKING),
         (MonsterSpecies.METALKING, MonsterSpecies.DIVINEGON, MonsterSpecies.SPOTKING),
@@ -143,11 +135,11 @@ from monsters.constants import MonsterSpecies, Species
         (MonsterSpecies.SLIME, MonsterSpecies.SLIME, MonsterSpecies.KINGSLIME),
         (MonsterSpecies.SLIME, MonsterSpecies.METALDRAK, MonsterSpecies.METALY),
         (MonsterSpecies.METALY, MonsterSpecies.METALY, MonsterSpecies.METABBLE),
-        # MetalKing (row 24) - spotking or kingslime + metaldrak
+        # MetalKing
         (MonsterSpecies.SPOTKING, MonsterSpecies.METALDRAK, MonsterSpecies.METALKING),
         (MonsterSpecies.KINGSLIME, MonsterSpecies.METALDRAK, MonsterSpecies.METALKING),
         (MonsterSpecies.METABBLE, MonsterSpecies.METABBLE, MonsterSpecies.METALKING),
-        # GoldSlime (row 26) - spotking, kingslime, or metalking + goldgolem
+        # GoldSlime
         (MonsterSpecies.SPOTKING, MonsterSpecies.GOLDGOLEM, MonsterSpecies.GOLDSLIME),
         (MonsterSpecies.KINGSLIME, MonsterSpecies.GOLDGOLEM, MonsterSpecies.GOLDSLIME),
         (MonsterSpecies.METALKING, MonsterSpecies.GOLDGOLEM, MonsterSpecies.GOLDSLIME),
@@ -278,7 +270,7 @@ def test_slime_breeding_combos(
     mate: Species,
     expected: Species,
 ) -> None:
-    """Breeding pedigree + mate yields expected Slime result (per Rules sheet)."""
+    """Breeding pedigree + mate yields expected Slime result."""
     result = get_breeding_result(pedigree=pedigree, mate=mate)
     assert result == expected
 
@@ -293,13 +285,13 @@ def test_slime_breeding_combos(
         (MonsterSpecies.TORTRAGON, MonsterSpecies.HEALER, MonsterSpecies.DRAGONKID),
         (MonsterSpecies.PTERANOD, MonsterSpecies.SPOTSLIME, MonsterSpecies.DRAGONKID),
         (MonsterSpecies.POISONGON, MonsterSpecies.SNAILY, MonsterSpecies.DRAGONKID),
-        # Any Dragon + any Beast -> Tortragon (avoid KingLeo, Lionex, Ogre, MadKnight, EvilArmor -> BattleRex)
+        # Any Dragon + any Beast -> Tortragon
         (MonsterSpecies.DRAGON, MonsterSpecies.ANTEATER, MonsterSpecies.TORTRAGON),
         (MonsterSpecies.DRAGON, MonsterSpecies.GRIZZLY, MonsterSpecies.TORTRAGON),
         (MonsterSpecies.MINIDRAK, MonsterSpecies.CATFLY, MonsterSpecies.TORTRAGON),
         (MonsterSpecies.SWORDGON, MonsterSpecies.WILDAPE, MonsterSpecies.TORTRAGON),
         (MonsterSpecies.LIZARDMAN, MonsterSpecies.UNICORN, MonsterSpecies.GREATDRAK),
-        # Any Dragon + any Bird -> Pteranod (avoid Phoenix -> SkyDragon; avoid BigRoost -> Crestpent)
+        # Any Dragon + any Bird -> Pteranod
         (MonsterSpecies.DRAGON, MonsterSpecies.DRACKY, MonsterSpecies.PTERANOD),
         (MonsterSpecies.DRAGON, MonsterSpecies.BULLBIRD, MonsterSpecies.PTERANOD),
         (MonsterSpecies.GASGON, MonsterSpecies.BULLBIRD, MonsterSpecies.PTERANOD),
@@ -309,7 +301,7 @@ def test_slime_breeding_combos(
         (MonsterSpecies.DRAGON, MonsterSpecies.FLORAMAN, MonsterSpecies.GASGON),
         (MonsterSpecies.PTERANOD, MonsterSpecies.AMBERWEED, MonsterSpecies.GASGON),
         (MonsterSpecies.POISONGON, MonsterSpecies.CACTIBALL, MonsterSpecies.GASGON),
-        # Any Dragon + any Bug -> FairyDrak (GiantMoth is Bug; Dragon+GiantMoth -> FairyDrak)
+        # Any Dragon + any Bug -> FairyDrak
         (MonsterSpecies.DRAGON, MonsterSpecies.CATAPILA, MonsterSpecies.FAIRYDRAK),
         (MonsterSpecies.DRAGON, MonsterSpecies.BUTTERFLY, MonsterSpecies.FAIRYDRAK),
         (MonsterSpecies.TORTRAGON, MonsterSpecies.HORNBEET, MonsterSpecies.FAIRYDRAK),
@@ -319,7 +311,7 @@ def test_slime_breeding_combos(
         (MonsterSpecies.DRAGON, MonsterSpecies.ARCDEMON, MonsterSpecies.LIZARDMAN),
         (MonsterSpecies.MINIDRAK, MonsterSpecies.AGDEVIL, MonsterSpecies.LIZARDMAN),
         (MonsterSpecies.GASGON, MonsterSpecies.DEMONITE, MonsterSpecies.LIZARDMAN),
-        # Any Dragon + any Zombie -> Poisongon (GiantMoth is Bug not Zombie -> FairyDrak)
+        # Any Dragon + any Zombie -> Poisongon
         (MonsterSpecies.DRAGON, MonsterSpecies.SPOOKY, MonsterSpecies.POISONGON),
         (MonsterSpecies.DRAGON, MonsterSpecies.GIANTMOTH, MonsterSpecies.FAIRYDRAK),
         (MonsterSpecies.PTERANOD, MonsterSpecies.SPOOKY, MonsterSpecies.POISONGON),
@@ -386,7 +378,7 @@ def test_slime_breeding_combos(
         (MonsterSpecies.DRAGON, MonsterSpecies.DIGSTER, MonsterSpecies.SPIKEROUS),
         (MonsterSpecies.LIZARDMAN, MonsterSpecies.ARMYCRAB, MonsterSpecies.SPIKEROUS),
         (MonsterSpecies.OROCHI, MonsterSpecies.DIGSTER, MonsterSpecies.SPIKEROUS),
-        # DragonKid + DragonKid -> GreatDrak (note +4); Dragon + Dragon -> GreatDrak
+        # DragonKid + DragonKid -> GreatDrak
         (MonsterSpecies.DRAGON, MonsterSpecies.DRAGON, MonsterSpecies.GREATDRAK),
         # Any Dragon + [SpotKing, KingSlime, MetalKing, BattleRex, Unicorn, ...] -> GreatDrak
         (MonsterSpecies.DRAGON, MonsterSpecies.SPOTKING, MonsterSpecies.GREATDRAK),
@@ -566,12 +558,7 @@ def test_dragon_breeding_combos(
     mate: Species,
     expected: Species,
 ) -> None:
-    """
-    All combos that result in a Dragon-class monster (Rules sheet Dragon section).
-
-    Sheet is grouped by result class; every expected is Dragon family. Mates
-    (e.g. Phoenix, KingLeo, Ogre, MedusaEye) appear only as the other parent.
-    """
+    """Breeding pedigree + mate yields expected Dragon result."""
     result = get_breeding_result(pedigree=pedigree, mate=mate)
     assert result == expected
 
@@ -579,13 +566,13 @@ def test_dragon_breeding_combos(
 @pytest.mark.parametrize(
     ("pedigree", "mate", "expected"),
     [
-        # Any Beast + any Slime -> Tonguella (avoid Beast+DrakSlime/LizardMan -> Goategon)
+        # Any Beast + any Slime -> Tonguella
         (MonsterSpecies.ANTEATER, MonsterSpecies.SLIME, MonsterSpecies.TONGUELLA),
         (MonsterSpecies.SKULLROO, MonsterSpecies.SLIME, MonsterSpecies.TONGUELLA),
         (MonsterSpecies.MADCAT, MonsterSpecies.BOXSLIME, MonsterSpecies.TONGUELLA),
         (MonsterSpecies.UNICORN, MonsterSpecies.HEALER, MonsterSpecies.TONGUELLA),
         (MonsterSpecies.CATFLY, MonsterSpecies.SPOTSLIME, MonsterSpecies.TONGUELLA),
-        # Any Beast + any Dragon -> Almiraj (avoid Grizzly/Trumpeter/WildApe + Dragon -> GulpBeast/Yeti)
+        # Any Beast + any Dragon -> Almiraj
         (MonsterSpecies.ANTEATER, MonsterSpecies.DRAGON, MonsterSpecies.ALMIRAJ),
         (MonsterSpecies.PILLOWRAT, MonsterSpecies.MINIDRAK, MonsterSpecies.ALMIRAJ),
         (MonsterSpecies.CATFLY, MonsterSpecies.DRAGON, MonsterSpecies.ALMIRAJ),
@@ -609,7 +596,7 @@ def test_dragon_breeding_combos(
         (MonsterSpecies.PILLOWRAT, MonsterSpecies.ARMYANT, MonsterSpecies.SACCER),
         (MonsterSpecies.CATFLY, MonsterSpecies.HORNBEET, MonsterSpecies.SACCER),
         (MonsterSpecies.UNICORN, MonsterSpecies.GIANTMOTH, MonsterSpecies.SACCER),
-        # Grizzly + any Devil -> GulpBeast (species+family; avoid for family Beast+Devil tests)
+        # Grizzly + any Devil -> GulpBeast
         (MonsterSpecies.GRIZZLY, MonsterSpecies.DEMONITE, MonsterSpecies.GULPBEAST),
         (MonsterSpecies.GRIZZLY, MonsterSpecies.ARCDEMON, MonsterSpecies.GULPBEAST),
         (MonsterSpecies.GRIZZLY, MonsterSpecies.AGDEVIL, MonsterSpecies.GULPBEAST),
@@ -624,7 +611,7 @@ def test_dragon_breeding_combos(
         (MonsterSpecies.PILLOWRAT, MonsterSpecies.CURSELAMP, MonsterSpecies.WINDBEAST),
         (MonsterSpecies.CATFLY, MonsterSpecies.EVILPOT, MonsterSpecies.WINDBEAST),
         (MonsterSpecies.SACCER, MonsterSpecies.GOLDGOLEM, MonsterSpecies.WINDBEAST),
-        # CatFly + any Bird -> WindBeast (species+family; use CatFly pedigree, any Bird mate)
+        # CatFly + any Bird -> WindBeast
         (MonsterSpecies.CATFLY, MonsterSpecies.DRACKY, MonsterSpecies.WINDBEAST),
         (MonsterSpecies.CATFLY, MonsterSpecies.BULLBIRD, MonsterSpecies.WINDBEAST),
         (MonsterSpecies.CATFLY, MonsterSpecies.BIGROOST, MonsterSpecies.WINDBEAST),
@@ -644,7 +631,7 @@ def test_dragon_breeding_combos(
         (MonsterSpecies.GULPBEAST, MonsterSpecies.MADDRAGON, MonsterSpecies.SUPERTEN),
         (MonsterSpecies.GULPBEAST, MonsterSpecies.FUNKYBIRD, MonsterSpecies.SUPERTEN),
         (MonsterSpecies.GULPBEAST, MonsterSpecies.COPYCAT, MonsterSpecies.SUPERTEN),
-        # Any Beast + Tortragon -> IronTurt (avoid Grizzly+Dragon -> GulpBeast)
+        # Any Beast + Tortragon -> IronTurt
         (MonsterSpecies.ANTEATER, MonsterSpecies.TORTRAGON, MonsterSpecies.IRONTURT),
         (MonsterSpecies.PILLOWRAT, MonsterSpecies.TORTRAGON, MonsterSpecies.IRONTURT),
         (MonsterSpecies.CATFLY, MonsterSpecies.TORTRAGON, MonsterSpecies.IRONTURT),
@@ -661,7 +648,7 @@ def test_dragon_breeding_combos(
         (MonsterSpecies.ANTEATER, MonsterSpecies.SABREMAN, MonsterSpecies.MADGOPHER),
         (MonsterSpecies.GRIZZLY, MonsterSpecies.SABREMAN, MonsterSpecies.MADGOPHER),
         (MonsterSpecies.PILLOWRAT, MonsterSpecies.SABREMAN, MonsterSpecies.MADGOPHER),
-        # Any Beast + LizardFly -> FairyRat (avoid Grizzly+... -> GulpBeast)
+        # Any Beast + LizardFly -> FairyRat
         (MonsterSpecies.ANTEATER, MonsterSpecies.LIZARDFLY, MonsterSpecies.FAIRYRAT),
         (MonsterSpecies.PILLOWRAT, MonsterSpecies.LIZARDFLY, MonsterSpecies.FAIRYRAT),
         (MonsterSpecies.CATFLY, MonsterSpecies.LIZARDFLY, MonsterSpecies.FAIRYRAT),
@@ -689,19 +676,19 @@ def test_dragon_breeding_combos(
         (MonsterSpecies.GRIZZLY, MonsterSpecies.BARAMOS, MonsterSpecies.DARKHORN),
         (MonsterSpecies.PILLOWRAT, MonsterSpecies.HARGON, MonsterSpecies.DARKHORN),
         (MonsterSpecies.UNICORN, MonsterSpecies.SIDOH, MonsterSpecies.DARKHORN),
-        # Any Beast + Eyeball -> BigEye (avoid Grizzly+Devil -> GulpBeast)
+        # Any Beast + Eyeball -> BigEye
         (MonsterSpecies.ANTEATER, MonsterSpecies.EYEBALL, MonsterSpecies.BIGEYE),
         (MonsterSpecies.PILLOWRAT, MonsterSpecies.EYEBALL, MonsterSpecies.BIGEYE),
         (MonsterSpecies.CATFLY, MonsterSpecies.EYEBALL, MonsterSpecies.BIGEYE),
-        # Any Beast + Orc -> Yeti (avoid Grizzly+Devil -> GulpBeast)
+        # Any Beast + Orc -> Yeti
         (MonsterSpecies.ANTEATER, MonsterSpecies.ORC, MonsterSpecies.YETI),
         (MonsterSpecies.PILLOWRAT, MonsterSpecies.ORC, MonsterSpecies.YETI),
         (MonsterSpecies.CATFLY, MonsterSpecies.ORC, MonsterSpecies.YETI),
         (MonsterSpecies.SKULLROO, MonsterSpecies.ORC, MonsterSpecies.YETI),
-        # Any Beast + DrakSlime or LizardMan -> Goategon (Beast+Slime gives Tonguella, so only LizardMan here)
+        # Any Beast + DrakSlime or LizardMan -> Goategon
         (MonsterSpecies.PILLOWRAT, MonsterSpecies.LIZARDMAN, MonsterSpecies.GOATEGON),
         (MonsterSpecies.CATFLY, MonsterSpecies.LIZARDMAN, MonsterSpecies.GOATEGON),
-        # Beast + [Devil, MetalDrak, ...] -> Grizzly (use only pairs that don't match GulpBeast)
+        # Beast + [Devil, MetalDrak, ...] -> Grizzly
         (MonsterSpecies.ANTEATER, MonsterSpecies.DEMONITE, MonsterSpecies.GRIZZLY),
         (MonsterSpecies.PILLOWRAT, MonsterSpecies.ARCDEMON, MonsterSpecies.GRIZZLY),
         (MonsterSpecies.CATFLY, MonsterSpecies.METALDRAK, MonsterSpecies.GRIZZLY),
@@ -919,11 +906,7 @@ def test_beast_breeding_combos(
     mate: Species,
     expected: Species,
 ) -> None:
-    """
-    All combos that result in a Beast-class monster (Rules sheet Beast section).
-
-    Every expected is Beast family. Mates from other families appear only as the second argument.
-    """
+    """Breeding pedigree + mate yields expected Beast result."""
     result = get_breeding_result(pedigree=pedigree, mate=mate)
     assert result == expected
 
@@ -931,19 +914,19 @@ def test_beast_breeding_combos(
 @pytest.mark.parametrize(
     ("pedigree", "mate", "expected"),
     [
-        # Any Bird + any Slime -> Picky (avoid Picky+Slime -> Dracky; avoid DrakSlime -> Phoenix)
+        # Any Bird + any Slime -> Picky
         (MonsterSpecies.DRACKY, MonsterSpecies.SLIME, MonsterSpecies.PICKY),
         (MonsterSpecies.BULLBIRD, MonsterSpecies.BOXSLIME, MonsterSpecies.PICKY),
         (MonsterSpecies.FLORAJAY, MonsterSpecies.BOXSLIME, MonsterSpecies.PICKY),
         (MonsterSpecies.DUCKKITE, MonsterSpecies.SPOTSLIME, MonsterSpecies.PICKY),
         (MonsterSpecies.MADRAVEN, MonsterSpecies.HEALER, MonsterSpecies.PICKY),
-        # Any Bird + any Dragon -> Wyvern (avoid Phoenix+Dragon -> SkyDragon)
+        # Any Bird + any Dragon -> Wyvern
         (MonsterSpecies.DRACKY, MonsterSpecies.DRAGON, MonsterSpecies.WYVERN),
         (MonsterSpecies.BULLBIRD, MonsterSpecies.MINIDRAK, MonsterSpecies.WYVERN),
         (MonsterSpecies.FLORAJAY, MonsterSpecies.TORTRAGON, MonsterSpecies.WYVERN),
         (MonsterSpecies.DUCKKITE, MonsterSpecies.PTERANOD, MonsterSpecies.WYVERN),
         (MonsterSpecies.MADPECKER, MonsterSpecies.SWORDGON, MonsterSpecies.WYVERN),
-        # Any Bird + any Beast -> BullBird (avoid BullBird+Beast -> LandOwl; avoid Grizzly -> Phoenix)
+        # Any Bird + any Beast -> BullBird
         (MonsterSpecies.DRACKY, MonsterSpecies.ANTEATER, MonsterSpecies.BULLBIRD),
         (MonsterSpecies.FLORAJAY, MonsterSpecies.PILLOWRAT, MonsterSpecies.BULLBIRD),
         (MonsterSpecies.DUCKKITE, MonsterSpecies.PILLOWRAT, MonsterSpecies.BULLBIRD),
@@ -961,7 +944,7 @@ def test_beast_breeding_combos(
         (MonsterSpecies.FLORAJAY, MonsterSpecies.ARMYANT, MonsterSpecies.DUCKKITE),
         (MonsterSpecies.MADPECKER, MonsterSpecies.HORNBEET, MonsterSpecies.DUCKKITE),
         (MonsterSpecies.MADRAVEN, MonsterSpecies.GIANTMOTH, MonsterSpecies.DUCKKITE),
-        # Any Bird + any Devil -> MadPecker (avoid LandOwl+Devil -> MadCondor; avoid ArcDemon -> Phoenix)
+        # Any Bird + any Devil -> MadPecker
         (MonsterSpecies.DRACKY, MonsterSpecies.DEMONITE, MonsterSpecies.MADPECKER),
         (MonsterSpecies.BULLBIRD, MonsterSpecies.DEMONITE, MonsterSpecies.MADPECKER),
         (MonsterSpecies.FLORAJAY, MonsterSpecies.AGDEVIL, MonsterSpecies.MADPECKER),
@@ -979,15 +962,15 @@ def test_beast_breeding_combos(
         (MonsterSpecies.FLORAJAY, MonsterSpecies.CURSELAMP, MonsterSpecies.MISTYWING),
         (MonsterSpecies.DUCKKITE, MonsterSpecies.EVILPOT, MonsterSpecies.MISTYWING),
         (MonsterSpecies.MADPECKER, MonsterSpecies.GOLDGOLEM, MonsterSpecies.MISTYWING),
-        # Picky + Slime -> Dracky (species+family; earlier than Bird+Slime -> Picky)
+        # Picky + Slime -> Dracky
         (MonsterSpecies.PICKY, MonsterSpecies.SLIME, MonsterSpecies.DRACKY),
         (MonsterSpecies.PICKY, MonsterSpecies.BOXSLIME, MonsterSpecies.DRACKY),
         (MonsterSpecies.PICKY, MonsterSpecies.DRAKSLIME, MonsterSpecies.DRACKY),
-        # Bird + RockSlime -> StubBird (use Bird not in [LandOwl, MadGoose, ...] so Bird+Rayburn not WhipBird pedigree-specific)
+        # Bird + RockSlime -> StubBird
         (MonsterSpecies.DRACKY, MonsterSpecies.ROCKSLIME, MonsterSpecies.STUBBIRD),
         (MonsterSpecies.FLORAJAY, MonsterSpecies.ROCKSLIME, MonsterSpecies.STUBBIRD),
         (MonsterSpecies.DUCKKITE, MonsterSpecies.ROCKSLIME, MonsterSpecies.STUBBIRD),
-        # BullBird + Beast -> LandOwl (species+family; avoid for family Bird+Beast -> BullBird tests)
+        # BullBird + Beast -> LandOwl
         (MonsterSpecies.BULLBIRD, MonsterSpecies.ANTEATER, MonsterSpecies.LANDOWL),
         (MonsterSpecies.BULLBIRD, MonsterSpecies.GRIZZLY, MonsterSpecies.LANDOWL),
         (MonsterSpecies.BULLBIRD, MonsterSpecies.PILLOWRAT, MonsterSpecies.LANDOWL),
@@ -996,36 +979,36 @@ def test_beast_breeding_combos(
         (MonsterSpecies.DRACKY, MonsterSpecies.DROLL, MonsterSpecies.MADGOOSE),
         (MonsterSpecies.FLORAJAY, MonsterSpecies.DROLL, MonsterSpecies.MADGOOSE),
         (MonsterSpecies.DUCKKITE, MonsterSpecies.DROLL, MonsterSpecies.MADGOOSE),
-        # LandOwl + Devil -> MadCondor (species+family; avoid for family Bird+Devil -> MadPecker tests)
+        # LandOwl + Devil -> MadCondor
         (MonsterSpecies.LANDOWL, MonsterSpecies.DEMONITE, MonsterSpecies.MADCONDOR),
         (MonsterSpecies.LANDOWL, MonsterSpecies.ARCDEMON, MonsterSpecies.MADCONDOR),
         (MonsterSpecies.LANDOWL, MonsterSpecies.AGDEVIL, MonsterSpecies.MADCONDOR),
-        # Bird + CoilBird -> MadCondor (CoilBird is Material; avoid CoilBird as mate for Bird+Material -> MistyWing)
+        # Bird + CoilBird -> MadCondor
         (MonsterSpecies.DRACKY, MonsterSpecies.COILBIRD, MonsterSpecies.MADCONDOR),
         (MonsterSpecies.BULLBIRD, MonsterSpecies.COILBIRD, MonsterSpecies.MADCONDOR),
-        # Bird + Rayburn -> WhipBird (use Bird not in [LandOwl, MadGoose, MadCondor, Blizzardy, ZapBird] which + RockSlime etc -> WhipBird)
+        # Bird + Rayburn -> WhipBird
         (MonsterSpecies.DRACKY, MonsterSpecies.RAYBURN, MonsterSpecies.WHIPBIRD),
         (MonsterSpecies.FLORAJAY, MonsterSpecies.RAYBURN, MonsterSpecies.WHIPBIRD),
         (MonsterSpecies.DUCKKITE, MonsterSpecies.RAYBURN, MonsterSpecies.WHIPBIRD),
-        # Bird + DanceVegi -> FunkyBird (DanceVegi is Plant)
+        # Bird + DanceVegi -> FunkyBird
         (MonsterSpecies.DRACKY, MonsterSpecies.DANCEVEGI, MonsterSpecies.FUNKYBIRD),
         (MonsterSpecies.BULLBIRD, MonsterSpecies.DANCEVEGI, MonsterSpecies.FUNKYBIRD),
         (MonsterSpecies.MADRAVEN, MonsterSpecies.DANCEVEGI, MonsterSpecies.FUNKYBIRD),
-        # Blizzardy + Phoenix -> RainHawk (species+species)
+        # Blizzardy + Phoenix -> RainHawk
         (MonsterSpecies.BLIZZARDY, MonsterSpecies.PHOENIX, MonsterSpecies.RAINHAWK),
         # Any Bird + any Boss -> ZapBird
         (MonsterSpecies.DRACKY, MonsterSpecies.DRACOLORD1, MonsterSpecies.ZAPBIRD),
         (MonsterSpecies.BULLBIRD, MonsterSpecies.BARAMOS, MonsterSpecies.ZAPBIRD),
         (MonsterSpecies.FLORAJAY, MonsterSpecies.HARGON, MonsterSpecies.ZAPBIRD),
         (MonsterSpecies.MADPECKER, MonsterSpecies.SIDOH, MonsterSpecies.ZAPBIRD),
-        # Bird + [Metaly, Yeti, etc.] -> Blizzardy (avoid BullBird+Beast -> LandOwl for Yeti)
+        # Bird + [Metaly, Yeti, etc.] -> Blizzardy
         (MonsterSpecies.DRACKY, MonsterSpecies.METALY, MonsterSpecies.BLIZZARDY),
         (MonsterSpecies.DRACKY, MonsterSpecies.YETI, MonsterSpecies.BLIZZARDY),
         (MonsterSpecies.FLORAJAY, MonsterSpecies.SUPERTEN, MonsterSpecies.BLIZZARDY),
         (MonsterSpecies.DUCKKITE, MonsterSpecies.GOATEGON, MonsterSpecies.BLIZZARDY),
         (MonsterSpecies.MADPECKER, MonsterSpecies.TRUMPETER, MonsterSpecies.BLIZZARDY),
         (MonsterSpecies.MADRAVEN, MonsterSpecies.ICEMAN, MonsterSpecies.BLIZZARDY),
-        # Bird + [DrakSlime, GulpBeast, etc.] -> Phoenix (avoid BullBird+Beast -> LandOwl for GulpBeast)
+        # Bird + [DrakSlime, GulpBeast, etc.] -> Phoenix
         (MonsterSpecies.DRACKY, MonsterSpecies.DRAKSLIME, MonsterSpecies.PHOENIX),
         (MonsterSpecies.DRACKY, MonsterSpecies.GULPBEAST, MonsterSpecies.PHOENIX),
         (MonsterSpecies.FLORAJAY, MonsterSpecies.IRONTURT, MonsterSpecies.PHOENIX),
@@ -1040,13 +1023,13 @@ def test_beast_breeding_combos(
         # [Wyvern, LandOwl, MadCondor, Phoenix] + Zombie -> MadGoose
         (MonsterSpecies.WYVERN, MonsterSpecies.SPOOKY, MonsterSpecies.MADGOOSE),
         (MonsterSpecies.LANDOWL, MonsterSpecies.SPOOKY, MonsterSpecies.MADGOOSE),
-        # [LandOwl, MadGoose, MadCondor, Blizzardy, ZapBird] + [SlimeBorg, Digster, ...] -> WhipBird (LandOwl+RockSlime -> StubBird, so use other mates)
+        # [LandOwl, MadGoose, MadCondor, Blizzardy, ZapBird] + [SlimeBorg, Digster, ...] -> WhipBird
         (MonsterSpecies.LANDOWL, MonsterSpecies.SLIMEBORG, MonsterSpecies.WHIPBIRD),
         (MonsterSpecies.MADGOOSE, MonsterSpecies.DIGSTER, MonsterSpecies.WHIPBIRD),
         (MonsterSpecies.MADCONDOR, MonsterSpecies.METALDRAK, MonsterSpecies.WHIPBIRD),
         (MonsterSpecies.BLIZZARDY, MonsterSpecies.GOLEM, MonsterSpecies.WHIPBIRD),
         (MonsterSpecies.ZAPBIRD, MonsterSpecies.STONEMAN, MonsterSpecies.WHIPBIRD),
-        # [MadCondor, Phoenix, WhipBird] + Gismo -> ZapBird (species+species)
+        # [MadCondor, Phoenix, WhipBird] + Gismo -> ZapBird
         (MonsterSpecies.MADCONDOR, MonsterSpecies.GISMO, MonsterSpecies.ZAPBIRD),
         (MonsterSpecies.PHOENIX, MonsterSpecies.GISMO, MonsterSpecies.ZAPBIRD),
         (MonsterSpecies.WHIPBIRD, MonsterSpecies.GISMO, MonsterSpecies.ZAPBIRD),
@@ -1154,11 +1137,7 @@ def test_bird_breeding_combos(
     mate: Species,
     expected: Species,
 ) -> None:
-    """
-    All combos that result in a Bird-class monster (Rules sheet Bird section).
-
-    Every expected is Bird family. Mates from other families appear only as the second argument.
-    """
+    """Breeding pedigree + mate yields expected Bird result."""
     result = get_breeding_result(pedigree=pedigree, mate=mate)
     assert result == expected
 
@@ -1166,7 +1145,7 @@ def test_bird_breeding_combos(
 @pytest.mark.parametrize(
     ("pedigree", "mate", "expected"),
     [
-        # Any Bug + any Slime -> GiantSlug (avoid GiantSlug+Slime -> ArmyAnt)
+        # Any Bug + any Slime -> GiantSlug
         (MonsterSpecies.CATAPILA, MonsterSpecies.SLIME, MonsterSpecies.GIANTSLUG),
         (MonsterSpecies.BUTTERFLY, MonsterSpecies.BOXSLIME, MonsterSpecies.GIANTSLUG),
         (MonsterSpecies.GOPHECADA, MonsterSpecies.SPOTSLIME, MonsterSpecies.GIANTSLUG),
@@ -1178,7 +1157,7 @@ def test_bird_breeding_combos(
         (MonsterSpecies.WEEDBUG, MonsterSpecies.PTERANOD, MonsterSpecies.CATAPILA),
         (MonsterSpecies.GIANTWORM, MonsterSpecies.SWORDGON, MonsterSpecies.CATAPILA),
         (MonsterSpecies.LIPSY, MonsterSpecies.TORTRAGON, MonsterSpecies.CATAPILA),
-        # Any Bug + any Beast -> Gophecada (avoid Catapila+Beast -> Eyeder)
+        # Any Bug + any Beast -> Gophecada
         (MonsterSpecies.GOPHECADA, MonsterSpecies.ANTEATER, MonsterSpecies.GOPHECADA),
         (MonsterSpecies.BUTTERFLY, MonsterSpecies.GRIZZLY, MonsterSpecies.GOPHECADA),
         (MonsterSpecies.WEEDBUG, MonsterSpecies.PILLOWRAT, MonsterSpecies.GOPHECADA),
@@ -1190,91 +1169,93 @@ def test_bird_breeding_combos(
         (MonsterSpecies.WEEDBUG, MonsterSpecies.FLORAJAY, MonsterSpecies.BUTTERFLY),
         (MonsterSpecies.GIANTWORM, MonsterSpecies.DUCKKITE, MonsterSpecies.BUTTERFLY),
         (MonsterSpecies.STAGBUG, MonsterSpecies.MADPECKER, MonsterSpecies.BUTTERFLY),
-        # Any Bug + any Plant -> Weedbug (avoid Bug+Floraman -> Taileater; avoid Bug+Amberweed -> Eyeder)
+        # Any Bug + any Plant -> Weedbug
         (MonsterSpecies.CATAPILA, MonsterSpecies.FIREWEED, MonsterSpecies.WEEDBUG),
         (MonsterSpecies.BUTTERFLY, MonsterSpecies.CACTIBALL, MonsterSpecies.WEEDBUG),
         (MonsterSpecies.GOPHECADA, MonsterSpecies.TOADSTOOL, MonsterSpecies.WEEDBUG),
         (MonsterSpecies.GIANTWORM, MonsterSpecies.GULPPLE, MonsterSpecies.WEEDBUG),
         (MonsterSpecies.LIPSY, MonsterSpecies.FIREWEED, MonsterSpecies.WEEDBUG),
-        # Any Bug + any Devil -> GiantWorm (avoid Butterfly+Devil -> GiantMoth)
+        # Any Bug + any Devil -> GiantWorm
         (MonsterSpecies.CATAPILA, MonsterSpecies.DEMONITE, MonsterSpecies.GIANTWORM),
         (MonsterSpecies.LIPSY, MonsterSpecies.ARCDEMON, MonsterSpecies.GIANTWORM),
         (MonsterSpecies.WEEDBUG, MonsterSpecies.AGDEVIL, MonsterSpecies.GIANTWORM),
         (MonsterSpecies.STAGBUG, MonsterSpecies.DEMONITE, MonsterSpecies.GIANTWORM),
         (MonsterSpecies.ARMYANT, MonsterSpecies.ARCDEMON, MonsterSpecies.GIANTWORM),
-        # Any Bug + any Zombie -> Lipsy (avoid Bug+Spooky -> Droll; use NiteWhip etc.)
+        # Any Bug + any Zombie -> Lipsy
         (MonsterSpecies.CATAPILA, MonsterSpecies.NITEWHIP, MonsterSpecies.LIPSY),
         (MonsterSpecies.BUTTERFLY, MonsterSpecies.NITEWHIP, MonsterSpecies.LIPSY),
         (MonsterSpecies.GOPHECADA, MonsterSpecies.SKULLGON, MonsterSpecies.LIPSY),
         (MonsterSpecies.WEEDBUG, MonsterSpecies.MUMMY, MonsterSpecies.LIPSY),
         (MonsterSpecies.GIANTWORM, MonsterSpecies.NITEWHIP, MonsterSpecies.LIPSY),
-        # Any Bug + any Material -> Stagbug (avoid Bug+Ironturt -> Armorpede; avoid GiantWorm+Material -> Armorpede)
+        # Any Bug + any Material -> Stagbug
         (MonsterSpecies.CATAPILA, MonsterSpecies.GOLDGOLEM, MonsterSpecies.STAGBUG),
         (MonsterSpecies.BUTTERFLY, MonsterSpecies.BALZAK, MonsterSpecies.STAGBUG),
         (MonsterSpecies.WEEDBUG, MonsterSpecies.CURSELAMP, MonsterSpecies.STAGBUG),
         (MonsterSpecies.ARMYANT, MonsterSpecies.EVILPOT, MonsterSpecies.STAGBUG),
         (MonsterSpecies.LIPSY, MonsterSpecies.GOLDGOLEM, MonsterSpecies.STAGBUG),
-        # GiantSlug + any Slime -> ArmyAnt (species+family)
+        # GiantSlug + any Slime -> ArmyAnt
         (MonsterSpecies.GIANTSLUG, MonsterSpecies.SLIME, MonsterSpecies.ARMYANT),
         (MonsterSpecies.GIANTSLUG, MonsterSpecies.BOXSLIME, MonsterSpecies.ARMYANT),
         (MonsterSpecies.GIANTSLUG, MonsterSpecies.SPOTSLIME, MonsterSpecies.ARMYANT),
-        # Weedbug + any Plant -> Taileater (species+family)
+        # Weedbug + any Plant -> Taileater
         (MonsterSpecies.WEEDBUG, MonsterSpecies.FIREWEED, MonsterSpecies.TAILEATER),
         (MonsterSpecies.WEEDBUG, MonsterSpecies.CACTIBALL, MonsterSpecies.TAILEATER),
         (MonsterSpecies.WEEDBUG, MonsterSpecies.FLORAMAN, MonsterSpecies.TAILEATER),
-        # Bug + Floraman -> Taileater (family+species)
+        # Bug + Floraman -> Taileater
         (MonsterSpecies.CATAPILA, MonsterSpecies.FLORAMAN, MonsterSpecies.TAILEATER),
         (MonsterSpecies.GIANTWORM, MonsterSpecies.FLORAMAN, MonsterSpecies.TAILEATER),
-        # GiantWorm + any Material -> Armorpede (species+family)
+        # GiantWorm + any Material -> Armorpede
         (MonsterSpecies.GIANTWORM, MonsterSpecies.GOLDGOLEM, MonsterSpecies.ARMORPEDE),
         (MonsterSpecies.GIANTWORM, MonsterSpecies.BALZAK, MonsterSpecies.ARMORPEDE),
-        # Droll + any Dragon -> Armorpede (species+family)
+        # Droll + any Dragon -> Armorpede
         (MonsterSpecies.DROLL, MonsterSpecies.DRAGON, MonsterSpecies.ARMORPEDE),
         (MonsterSpecies.DROLL, MonsterSpecies.MINIDRAK, MonsterSpecies.ARMORPEDE),
-        # Bug + Ironturt -> Armorpede (family+species; avoid Catapila+Beast -> Eyeder)
+        # Bug + Ironturt -> Armorpede
         (MonsterSpecies.BUTTERFLY, MonsterSpecies.IRONTURT, MonsterSpecies.ARMORPEDE),
         (MonsterSpecies.WEEDBUG, MonsterSpecies.IRONTURT, MonsterSpecies.ARMORPEDE),
-        # Catapila + any Beast -> Eyeder (species+family)
+        # Catapila + any Beast -> Eyeder
         (MonsterSpecies.CATAPILA, MonsterSpecies.ANTEATER, MonsterSpecies.EYEDER),
         (MonsterSpecies.CATAPILA, MonsterSpecies.GRIZZLY, MonsterSpecies.EYEDER),
         (MonsterSpecies.CATAPILA, MonsterSpecies.PILLOWRAT, MonsterSpecies.EYEDER),
-        # Bug + Amberweed -> Eyeder (family+species)
+        # Bug + Amberweed -> Eyeder
         (MonsterSpecies.GOPHECADA, MonsterSpecies.AMBERWEED, MonsterSpecies.EYEDER),
         (MonsterSpecies.LIPSY, MonsterSpecies.AMBERWEED, MonsterSpecies.EYEDER),
-        # Butterfly + any Devil -> GiantMoth (species+family)
+        # Butterfly + any Devil -> GiantMoth
         (MonsterSpecies.BUTTERFLY, MonsterSpecies.DEMONITE, MonsterSpecies.GIANTMOTH),
         (MonsterSpecies.BUTTERFLY, MonsterSpecies.ARCDEMON, MonsterSpecies.GIANTMOTH),
-        # Bug + Saccer -> GiantMoth (family+species; avoid Catapila+Beast -> Eyeder)
+        # Bug + Saccer -> GiantMoth
         (MonsterSpecies.WEEDBUG, MonsterSpecies.SACCER, MonsterSpecies.GIANTMOTH),
         (MonsterSpecies.GOPHECADA, MonsterSpecies.SACCER, MonsterSpecies.GIANTMOTH),
-        # Lipsy + any Slime -> Droll (species+family)
+        # Lipsy + any Slime -> Droll
         (MonsterSpecies.LIPSY, MonsterSpecies.SLIME, MonsterSpecies.DROLL),
         (MonsterSpecies.LIPSY, MonsterSpecies.BOXSLIME, MonsterSpecies.DROLL),
-        # Bug + Spooky -> Droll (family+species)
+        # Bug + Spooky -> Droll
         (MonsterSpecies.CATAPILA, MonsterSpecies.SPOOKY, MonsterSpecies.DROLL),
         (MonsterSpecies.GOPHECADA, MonsterSpecies.SPOOKY, MonsterSpecies.DROLL),
         (MonsterSpecies.WEEDBUG, MonsterSpecies.SPOOKY, MonsterSpecies.DROLL),
-        # Bug + DarkCrab -> ArmyCrab (family+species)
+        # Bug + DarkCrab -> ArmyCrab
         (MonsterSpecies.CATAPILA, MonsterSpecies.DARKCRAB, MonsterSpecies.ARMYCRAB),
         (MonsterSpecies.BUTTERFLY, MonsterSpecies.DARKCRAB, MonsterSpecies.ARMYCRAB),
-        # Bug + FairyRat -> MadHornet (family+species; avoid Catapila+Beast -> Eyeder)
+        # Bug + FairyRat -> MadHornet
         (MonsterSpecies.BUTTERFLY, MonsterSpecies.FAIRYRAT, MonsterSpecies.MADHORNET),
         (MonsterSpecies.GOPHECADA, MonsterSpecies.FAIRYRAT, MonsterSpecies.MADHORNET),
-        # Eyeder or Droll + any Zombie -> MadHornet (species+family)
+        # Eyeder or Droll + any Zombie -> MadHornet
         (MonsterSpecies.EYEDER, MonsterSpecies.SPOOKY, MonsterSpecies.MADHORNET),
         (MonsterSpecies.DROLL, MonsterSpecies.SPOOKY, MonsterSpecies.MADHORNET),
-        # Stagbug + Stagbug -> Hornbeet (species+species)
+        # Stagbug + Stagbug -> Hornbeet
         (MonsterSpecies.STAGBUG, MonsterSpecies.STAGBUG, MonsterSpecies.HORNBEET),
-        # Armorpede + any Devil -> Hornbeet (species+family)
+        # Armorpede + any Devil -> Hornbeet
         (MonsterSpecies.ARMORPEDE, MonsterSpecies.DEMONITE, MonsterSpecies.HORNBEET),
         (MonsterSpecies.ARMORPEDE, MonsterSpecies.ARCDEMON, MonsterSpecies.HORNBEET),
-        # Hornbeet + Hornbeet -> ArmorPion (species+species)
+        # Hornbeet + Hornbeet -> ArmorPion
         (MonsterSpecies.HORNBEET, MonsterSpecies.HORNBEET, MonsterSpecies.ARMORPION),
         # Any Bug + any Boss -> Digster
         (MonsterSpecies.CATAPILA, MonsterSpecies.DRACOLORD1, MonsterSpecies.DIGSTER),
         (MonsterSpecies.BUTTERFLY, MonsterSpecies.BARAMOS, MonsterSpecies.DIGSTER),
         (MonsterSpecies.GOPHECADA, MonsterSpecies.HARGON, MonsterSpecies.DIGSTER),
         (MonsterSpecies.WEEDBUG, MonsterSpecies.SIDOH, MonsterSpecies.DIGSTER),
+        # Butterfly/TailEater/Eyeder + same -> Droll
+        (MonsterSpecies.BUTTERFLY, MonsterSpecies.BUTTERFLY, MonsterSpecies.DROLL),
     ],
     ids=[
         "catapila_slime",
@@ -1359,6 +1340,7 @@ def test_bird_breeding_combos(
         "butterfly_baramos",
         "gophecada_hargon",
         "weedbug_sidoh",
+        "butterfly_butterfly",
     ],
 )
 def test_bug_breeding_combos(
@@ -1366,11 +1348,7 @@ def test_bug_breeding_combos(
     mate: Species,
     expected: Species,
 ) -> None:
-    """
-    All combos that result in a Bug-class monster (Rules sheet Bug section).
-
-    Every expected is Bug family. Mates from other families appear only as the second argument.
-    """
+    """Breeding pedigree + mate yields expected Bug result."""
     result = get_breeding_result(pedigree=pedigree, mate=mate)
     assert result == expected
 
@@ -1384,54 +1362,54 @@ def test_bug_breeding_combos(
         (MonsterSpecies.FLORAMAN, MonsterSpecies.SPOTSLIME, MonsterSpecies.MADPLANT),
         (MonsterSpecies.WINGTREE, MonsterSpecies.SNAILY, MonsterSpecies.MADPLANT),
         (MonsterSpecies.TOADSTOOL, MonsterSpecies.HEALER, MonsterSpecies.MADPLANT),
-        # Any Plant + any Dragon -> Fireweed (avoid Herbman+Dragon -> FaceTree)
+        # Any Plant + any Dragon -> Fireweed
         (MonsterSpecies.FIREWEED, MonsterSpecies.DRAGON, MonsterSpecies.FIREWEED),
         (MonsterSpecies.CACTIBALL, MonsterSpecies.MINIDRAK, MonsterSpecies.FIREWEED),
         (MonsterSpecies.FLORAMAN, MonsterSpecies.PTERANOD, MonsterSpecies.FIREWEED),
         (MonsterSpecies.GULPPLE, MonsterSpecies.SWORDGON, MonsterSpecies.FIREWEED),
         (MonsterSpecies.AMBERWEED, MonsterSpecies.TORTRAGON, MonsterSpecies.FIREWEED),
-        # Any Plant + any Beast -> Floraman (avoid MadPlant+Beast -> DanceVegi; avoid Plant+PillowRat -> Beanman)
+        # Any Plant + any Beast -> Floraman
         (MonsterSpecies.FIREWEED, MonsterSpecies.ANTEATER, MonsterSpecies.FLORAMAN),
         (MonsterSpecies.CACTIBALL, MonsterSpecies.GRIZZLY, MonsterSpecies.FLORAMAN),
         (MonsterSpecies.WINGTREE, MonsterSpecies.CATFLY, MonsterSpecies.FLORAMAN),
         (MonsterSpecies.TOADSTOOL, MonsterSpecies.SKULLROO, MonsterSpecies.FLORAMAN),
         (MonsterSpecies.GULPPLE, MonsterSpecies.UNICORN, MonsterSpecies.FLORAMAN),
-        # Any Plant + any Bird -> WingTree (avoid Plant+FunkyBird -> Herbman; avoid DuckKite -> EvilSeed)
+        # Any Plant + any Bird -> WingTree
         (MonsterSpecies.FIREWEED, MonsterSpecies.DRACKY, MonsterSpecies.WINGTREE),
         (MonsterSpecies.FLORAMAN, MonsterSpecies.BULLBIRD, MonsterSpecies.WINGTREE),
         (MonsterSpecies.CACTIBALL, MonsterSpecies.PHOENIX, MonsterSpecies.WINGTREE),
         (MonsterSpecies.GULPPLE, MonsterSpecies.MADPECKER, MonsterSpecies.WINGTREE),
         (MonsterSpecies.TOADSTOOL, MonsterSpecies.MADRAVEN, MonsterSpecies.WINGTREE),
-        # Any Plant + any Bug -> Cactiball (avoid Plant+GopheCada -> Oniono; avoid Butterfly -> EvilSeed)
+        # Any Plant + any Bug -> Cactiball
         (MonsterSpecies.FIREWEED, MonsterSpecies.CATAPILA, MonsterSpecies.CACTIBALL),
         (MonsterSpecies.TOADSTOOL, MonsterSpecies.CATAPILA, MonsterSpecies.CACTIBALL),
         (MonsterSpecies.WINGTREE, MonsterSpecies.ARMYANT, MonsterSpecies.CACTIBALL),
         (MonsterSpecies.GULPPLE, MonsterSpecies.HORNBEET, MonsterSpecies.CACTIBALL),
         (MonsterSpecies.AMBERWEED, MonsterSpecies.GIANTMOTH, MonsterSpecies.CACTIBALL),
-        # Any Plant + any Devil -> Gulpple (avoid Plant+Pixy -> TreeBoy)
+        # Any Plant + any Devil -> Gulpple
         (MonsterSpecies.FIREWEED, MonsterSpecies.DEMONITE, MonsterSpecies.GULPPLE),
         (MonsterSpecies.FLORAMAN, MonsterSpecies.ARCDEMON, MonsterSpecies.GULPPLE),
         (MonsterSpecies.CACTIBALL, MonsterSpecies.AGDEVIL, MonsterSpecies.GULPPLE),
         (MonsterSpecies.WINGTREE, MonsterSpecies.DEMONITE, MonsterSpecies.GULPPLE),
         (MonsterSpecies.TOADSTOOL, MonsterSpecies.ARCDEMON, MonsterSpecies.GULPPLE),
-        # Any Plant + any Zombie -> Toadstool (avoid Plant+NiteWhip -> FaceTree)
+        # Any Plant + any Zombie -> Toadstool
         (MonsterSpecies.FIREWEED, MonsterSpecies.SPOOKY, MonsterSpecies.TOADSTOOL),
         (MonsterSpecies.FLORAMAN, MonsterSpecies.SPOOKY, MonsterSpecies.TOADSTOOL),
         (MonsterSpecies.CACTIBALL, MonsterSpecies.SPOOKY, MonsterSpecies.TOADSTOOL),
         (MonsterSpecies.WINGTREE, MonsterSpecies.SPOOKY, MonsterSpecies.TOADSTOOL),
         (MonsterSpecies.GULPPLE, MonsterSpecies.SPOOKY, MonsterSpecies.TOADSTOOL),
-        # Any Plant + any Material -> Amberweed (avoid Plant+Facer -> DanceVegi)
+        # Any Plant + any Material -> Amberweed
         (MonsterSpecies.FIREWEED, MonsterSpecies.GOLDGOLEM, MonsterSpecies.AMBERWEED),
         (MonsterSpecies.FLORAMAN, MonsterSpecies.BALZAK, MonsterSpecies.AMBERWEED),
         (MonsterSpecies.CACTIBALL, MonsterSpecies.CURSELAMP, MonsterSpecies.AMBERWEED),
         (MonsterSpecies.WINGTREE, MonsterSpecies.EVILPOT, MonsterSpecies.AMBERWEED),
         (MonsterSpecies.TOADSTOOL, MonsterSpecies.GOLDGOLEM, MonsterSpecies.AMBERWEED),
-        # Amberweed + any Beast -> StubSuck (species+family)
+        # Amberweed + any Beast -> StubSuck
         (MonsterSpecies.AMBERWEED, MonsterSpecies.ANTEATER, MonsterSpecies.STUBSUCK),
         (MonsterSpecies.AMBERWEED, MonsterSpecies.GRIZZLY, MonsterSpecies.STUBSUCK),
         (MonsterSpecies.AMBERWEED, MonsterSpecies.PILLOWRAT, MonsterSpecies.STUBSUCK),
         (MonsterSpecies.AMBERWEED, MonsterSpecies.CATFLY, MonsterSpecies.STUBSUCK),
-        # Plant + GopheCada -> Oniono (species-specific mate)
+        # Plant + GopheCada -> Oniono
         (MonsterSpecies.FIREWEED, MonsterSpecies.GOPHECADA, MonsterSpecies.ONIONO),
         (MonsterSpecies.FLORAMAN, MonsterSpecies.GOPHECADA, MonsterSpecies.ONIONO),
         (MonsterSpecies.CACTIBALL, MonsterSpecies.GOPHECADA, MonsterSpecies.ONIONO),
@@ -1440,7 +1418,7 @@ def test_bug_breeding_combos(
         (MonsterSpecies.MADPLANT, MonsterSpecies.GRIZZLY, MonsterSpecies.DANCEVEGI),
         (MonsterSpecies.MADPLANT, MonsterSpecies.CATFLY, MonsterSpecies.DANCEVEGI),
         (MonsterSpecies.MADPLANT, MonsterSpecies.SKULLROO, MonsterSpecies.DANCEVEGI),
-        # Plant + Facer -> DanceVegi (Facer is Material)
+        # Plant + Facer -> DanceVegi
         (MonsterSpecies.FIREWEED, MonsterSpecies.FACER, MonsterSpecies.DANCEVEGI),
         (MonsterSpecies.FLORAMAN, MonsterSpecies.FACER, MonsterSpecies.DANCEVEGI),
         # Plant + Pixy -> TreeBoy
@@ -1451,7 +1429,7 @@ def test_bug_breeding_combos(
         (MonsterSpecies.HERBMAN, MonsterSpecies.DRAGON, MonsterSpecies.FACETREE),
         (MonsterSpecies.HERBMAN, MonsterSpecies.MINIDRAK, MonsterSpecies.FACETREE),
         (MonsterSpecies.HERBMAN, MonsterSpecies.PTERANOD, MonsterSpecies.FACETREE),
-        # Plant + NiteWhip -> FaceTree (NiteWhip is Zombie)
+        # Plant + NiteWhip -> FaceTree
         (MonsterSpecies.FIREWEED, MonsterSpecies.NITEWHIP, MonsterSpecies.FACETREE),
         (MonsterSpecies.FLORAMAN, MonsterSpecies.NITEWHIP, MonsterSpecies.FACETREE),
         (MonsterSpecies.CACTIBALL, MonsterSpecies.NITEWHIP, MonsterSpecies.FACETREE),
@@ -1483,6 +1461,9 @@ def test_bug_breeding_combos(
         (MonsterSpecies.FLORAMAN, MonsterSpecies.DARKEYE, MonsterSpecies.EVILSEED),
         (MonsterSpecies.CACTIBALL, MonsterSpecies.EYEBALL, MonsterSpecies.EVILSEED),
         (MonsterSpecies.WINGTREE, MonsterSpecies.MADMIRROR, MonsterSpecies.EVILSEED),
+        # EvilSeed + EvilSeed -> ManEater; ManEater + ManEater -> Snapper
+        (MonsterSpecies.EVILSEED, MonsterSpecies.EVILSEED, MonsterSpecies.MANEATER),
+        (MonsterSpecies.MANEATER, MonsterSpecies.MANEATER, MonsterSpecies.SNAPPER),
     ],
     ids=[
         "fireweed_slime",
@@ -1570,6 +1551,8 @@ def test_bug_breeding_combos(
         "floraman_darkeye",
         "cactiball_eyeball",
         "wingtree_madmirror",
+        "evilseed_evilseed",
+        "maneater_maneater",
     ],
 )
 def test_plant_breeding_combos(
@@ -1577,11 +1560,7 @@ def test_plant_breeding_combos(
     mate: Species,
     expected: Species,
 ) -> None:
-    """
-    All combos that result in a Plant-class monster (Rules sheet Plant section).
-
-    Every expected is Plant family. Mates from other families appear only as the second argument.
-    """
+    """Breeding pedigree + mate yields expected Plant result."""
     result = get_breeding_result(pedigree=pedigree, mate=mate)
     assert result == expected
 
@@ -1589,7 +1568,7 @@ def test_plant_breeding_combos(
 @pytest.mark.parametrize(
     ("pedigree", "mate", "expected"),
     [
-        # Any Devil + any Slime -> Pixy (avoid Pixy/Demonite/Eyeball + Slime -> OneEyeClown)
+        # Any Devil + any Slime -> Pixy
         (MonsterSpecies.GREMLIN, MonsterSpecies.SLIME, MonsterSpecies.PIXY),
         (MonsterSpecies.DARKEYE, MonsterSpecies.BOXSLIME, MonsterSpecies.PIXY),
         (MonsterSpecies.SKULRIDER, MonsterSpecies.SPOTSLIME, MonsterSpecies.PIXY),
@@ -1614,7 +1593,7 @@ def test_plant_breeding_combos(
         (MonsterSpecies.PIXY, MonsterSpecies.CATAPILA, MonsterSpecies.EYEBALL),
         (MonsterSpecies.DARKEYE, MonsterSpecies.BUTTERFLY, MonsterSpecies.EYEBALL),
         (MonsterSpecies.SKULRIDER, MonsterSpecies.ARMYANT, MonsterSpecies.EYEBALL),
-        # Any Devil + Zombie -> SkulRider (avoid GateGuard + Zombie -> ArcDemon; avoid EvilBeast/SkulRider + Zombie -> Gigantes)
+        # Any Devil + Zombie -> SkulRider
         (MonsterSpecies.PIXY, MonsterSpecies.SPOOKY, MonsterSpecies.SKULRIDER),
         (MonsterSpecies.DEMONITE, MonsterSpecies.MUMMY, MonsterSpecies.SKULRIDER),
         (MonsterSpecies.PIXY, MonsterSpecies.PUTREPUP, MonsterSpecies.SKULRIDER),
@@ -1622,20 +1601,20 @@ def test_plant_breeding_combos(
         (MonsterSpecies.PIXY, MonsterSpecies.GOLDGOLEM, MonsterSpecies.EVILBEAST),
         (MonsterSpecies.DARKEYE, MonsterSpecies.BALZAK, MonsterSpecies.EVILBEAST),
         (MonsterSpecies.GREMLIN, MonsterSpecies.CURSELAMP, MonsterSpecies.EVILBEAST),
-        # Any Devil + Dragon -> MedusaEye (avoid Ogre + Dragon -> ArcDemon; avoid ArcDemon+ Dragon -> Centasaur)
+        # Any Devil + Dragon -> MedusaEye
         (MonsterSpecies.PIXY, MonsterSpecies.DRAGON, MonsterSpecies.MEDUSAEYE),
         (MonsterSpecies.DEMONITE, MonsterSpecies.TORTRAGON, MonsterSpecies.MEDUSAEYE),
         (MonsterSpecies.DARKEYE, MonsterSpecies.PTERANOD, MonsterSpecies.MEDUSAEYE),
         # ArcDemon + Zombie -> Lionex
         (MonsterSpecies.ARCDEMON, MonsterSpecies.SPOOKY, MonsterSpecies.LIONEX),
         (MonsterSpecies.ARCDEMON, MonsterSpecies.MUMMY, MonsterSpecies.LIONEX),
-        # Any Devil + LizardMan -> Lionex (avoid ArcDemon -> ArcDemon+Zombie wins for different mate)
+        # Any Devil + LizardMan -> Lionex
         (MonsterSpecies.PIXY, MonsterSpecies.LIZARDMAN, MonsterSpecies.LIONEX),
         (MonsterSpecies.DARKEYE, MonsterSpecies.LIZARDMAN, MonsterSpecies.LIONEX),
         # ArcDemon + Beast -> GoatHorn
         (MonsterSpecies.ARCDEMON, MonsterSpecies.ANTEATER, MonsterSpecies.GOATHORN),
         (MonsterSpecies.ARCDEMON, MonsterSpecies.CATFLY, MonsterSpecies.GOATHORN),
-        # Any Devil + DarkHorn -> GoatHorn (avoid ArcDemon; ArcDemon+DarkHorn -> GoatHorn as species+family)
+        # Any Devil + DarkHorn -> GoatHorn
         (MonsterSpecies.PIXY, MonsterSpecies.DARKHORN, MonsterSpecies.GOATHORN),
         (MonsterSpecies.EYEBALL, MonsterSpecies.DARKHORN, MonsterSpecies.GOATHORN),
         # Any Devil + BeanMan -> Orc
@@ -1644,7 +1623,7 @@ def test_plant_breeding_combos(
         # GateGuard + Dragon -> Ogre
         (MonsterSpecies.GATEGUARD, MonsterSpecies.DRAGON, MonsterSpecies.OGRE),
         (MonsterSpecies.GATEGUARD, MonsterSpecies.PTERANOD, MonsterSpecies.OGRE),
-        # Any Devil + Hammerman -> Ogre (avoid GateGuard; GateGuard+Dragon -> Ogre)
+        # Any Devil + Hammerman -> Ogre
         (MonsterSpecies.PIXY, MonsterSpecies.HAMMERMAN, MonsterSpecies.OGRE),
         (MonsterSpecies.DARKEYE, MonsterSpecies.HAMMERMAN, MonsterSpecies.OGRE),
         # Demonite + Demonite -> GateGuard
@@ -1658,7 +1637,7 @@ def test_plant_breeding_combos(
             MonsterSpecies.ONEEYECLOWN,
             MonsterSpecies.CHOPCLOWN,
         ),
-        # Any Devil + MadDragon -> Grendal (avoid [SkulRider, EvilBeast, Gremlin, MedusaEye] + Dragon -> AgDevil)
+        # Any Devil + MadDragon -> Grendal
         (MonsterSpecies.PIXY, MonsterSpecies.MADDRAGON, MonsterSpecies.GRENDAL),
         (MonsterSpecies.DARKEYE, MonsterSpecies.MADDRAGON, MonsterSpecies.GRENDAL),
         # ArcDemon + GateGuard -> Akubar
@@ -1671,7 +1650,7 @@ def test_plant_breeding_combos(
         # Any Devil + BigEye -> Gigantes
         (MonsterSpecies.PIXY, MonsterSpecies.BIGEYE, MonsterSpecies.GIGANTES),
         (MonsterSpecies.DARKEYE, MonsterSpecies.BIGEYE, MonsterSpecies.GIGANTES),
-        # SkulRider/EvilBeast + Zombie -> Gigantes (family+family Devil+Zombie -> SkulRider comes first; species list wins)
+        # SkulRider/EvilBeast + Zombie -> Gigantes
         (MonsterSpecies.SKULRIDER, MonsterSpecies.SPOOKY, MonsterSpecies.GIGANTES),
         (MonsterSpecies.EVILBEAST, MonsterSpecies.MUMMY, MonsterSpecies.GIGANTES),
         # ArcDemon + Dragon -> Centasaur
@@ -1693,7 +1672,7 @@ def test_plant_breeding_combos(
         # Centasaur + GoldGolem / GoldGolem + Centasaur -> Durran
         (MonsterSpecies.CENTASAUR, MonsterSpecies.GOLDGOLEM, MonsterSpecies.DURRAN),
         (MonsterSpecies.GOLDGOLEM, MonsterSpecies.CENTASAUR, MonsterSpecies.DURRAN),
-        # Any Devil + Beast -> Gremlin (avoid ArcDemon + Beast -> GoatHorn; avoid [SkulRider, EvilBeast, Gremlin, MedusaEye] + Beast -> Grendal)
+        # Any Devil + Beast -> Gremlin
         (MonsterSpecies.PIXY, MonsterSpecies.ANTEATER, MonsterSpecies.GREMLIN),
         (MonsterSpecies.EYEBALL, MonsterSpecies.PILLOWRAT, MonsterSpecies.GREMLIN),
         (MonsterSpecies.DARKEYE, MonsterSpecies.WILDAPE, MonsterSpecies.GREMLIN),
@@ -1702,13 +1681,13 @@ def test_plant_breeding_combos(
         (MonsterSpecies.EVILBEAST, MonsterSpecies.MINIDRAK, MonsterSpecies.AGDEVIL),
         (MonsterSpecies.GREMLIN, MonsterSpecies.TORTRAGON, MonsterSpecies.AGDEVIL),
         (MonsterSpecies.MEDUSAEYE, MonsterSpecies.PTERANOD, MonsterSpecies.AGDEVIL),
-        # Pixy + Slime -> OneEyeClown (species+family; avoid Devil+Slime -> Pixy when pedigree is Pixy)
+        # Pixy + Slime -> OneEyeClown
         (MonsterSpecies.PIXY, MonsterSpecies.SLIME, MonsterSpecies.ONEEYECLOWN),
         # [MedusaEye, OneEyeClown, Gremlin] + Zombie -> MedusaEye
         (MonsterSpecies.MEDUSAEYE, MonsterSpecies.SPOOKY, MonsterSpecies.MEDUSAEYE),
         (MonsterSpecies.ONEEYECLOWN, MonsterSpecies.MUMMY, MonsterSpecies.MEDUSAEYE),
         (MonsterSpecies.GREMLIN, MonsterSpecies.PUTREPUP, MonsterSpecies.MEDUSAEYE),
-        # [SkulRider, EvilBeast, Gremlin, MedusaEye] + Beast -> Grendal (avoid Gremlin pedigree: Devil+Beast -> Gremlin)
+        # [SkulRider, EvilBeast, Gremlin, MedusaEye] + Beast -> Grendal
         (MonsterSpecies.SKULRIDER, MonsterSpecies.ANTEATER, MonsterSpecies.GRENDAL),
         (MonsterSpecies.EVILBEAST, MonsterSpecies.GRIZZLY, MonsterSpecies.GRENDAL),
         (MonsterSpecies.MEDUSAEYE, MonsterSpecies.PILLOWRAT, MonsterSpecies.GRENDAL),
@@ -1826,11 +1805,7 @@ def test_devil_breeding_combos(
     mate: Species,
     expected: Species,
 ) -> None:
-    """
-    All combos that result in a Devil-class monster (Rules sheet Devil section).
-
-    Every expected is Devil family. Mates from other families appear only as the second argument.
-    """
+    """Breeding pedigree + mate yields expected Devil result."""
     result = get_breeding_result(pedigree=pedigree, mate=mate)
     assert result == expected
 
@@ -1838,36 +1813,36 @@ def test_devil_breeding_combos(
 @pytest.mark.parametrize(
     ("pedigree", "mate", "expected"),
     [
-        # Any Zombie + any Slime -> Spooky (avoid Zombie + BoxSlime/FangSlime etc -> Mudron)
+        # Any Zombie + any Slime -> Spooky
         (MonsterSpecies.MUMMY, MonsterSpecies.SLIME, MonsterSpecies.SPOOKY),
         (MonsterSpecies.PUTREPUP, MonsterSpecies.SPOTSLIME, MonsterSpecies.SPOOKY),
         (MonsterSpecies.DARKCRAB, MonsterSpecies.SPOTSLIME, MonsterSpecies.SPOOKY),
-        # Any Zombie + Beast -> Putrepup (avoid Spooky + Beast -> Hork)
+        # Any Zombie + Beast -> Putrepup
         (MonsterSpecies.MUMMY, MonsterSpecies.ANTEATER, MonsterSpecies.PUTREPUP),
         (MonsterSpecies.PUTREPUP, MonsterSpecies.GRIZZLY, MonsterSpecies.PUTREPUP),
         (MonsterSpecies.DARKCRAB, MonsterSpecies.PILLOWRAT, MonsterSpecies.PUTREPUP),
         # Spooky + Beast -> Hork
         (MonsterSpecies.SPOOKY, MonsterSpecies.ANTEATER, MonsterSpecies.HORK),
         (MonsterSpecies.SPOOKY, MonsterSpecies.CATFLY, MonsterSpecies.HORK),
-        # Any Zombie + Bird -> RotRaven (avoid [Skullgon, DeadNite, Mudron, ...] + Bird -> MadSpirit)
+        # Any Zombie + Bird -> RotRaven
         (MonsterSpecies.SPOOKY, MonsterSpecies.DRACKY, MonsterSpecies.ROTRAVEN),
         (MonsterSpecies.MUMMY, MonsterSpecies.FLORAJAY, MonsterSpecies.ROTRAVEN),
         (MonsterSpecies.PUTREPUP, MonsterSpecies.PHOENIX, MonsterSpecies.ROTRAVEN),
         # RotRaven + Bird -> WindMerge
         (MonsterSpecies.ROTRAVEN, MonsterSpecies.DRACKY, MonsterSpecies.WINDMERGE),
         (MonsterSpecies.ROTRAVEN, MonsterSpecies.BIGROOST, MonsterSpecies.WINDMERGE),
-        # Any Zombie + WindBeast -> WindMerge (avoid Spooky + Beast -> Hork)
+        # Any Zombie + WindBeast -> WindMerge
         (MonsterSpecies.MUMMY, MonsterSpecies.WINDBEAST, MonsterSpecies.WINDMERGE),
         (MonsterSpecies.PUTREPUP, MonsterSpecies.WINDBEAST, MonsterSpecies.WINDMERGE),
-        # Any Zombie + Plant -> Mummy (avoid [Mummy, DeadNite, Hork] + Floraman etc -> BoneSlave)
+        # Any Zombie + Plant -> Mummy
         (MonsterSpecies.SPOOKY, MonsterSpecies.FIREWEED, MonsterSpecies.MUMMY),
         (MonsterSpecies.PUTREPUP, MonsterSpecies.AMBERWEED, MonsterSpecies.MUMMY),
         (MonsterSpecies.DARKCRAB, MonsterSpecies.FLORAMAN, MonsterSpecies.MUMMY),
-        # Any Zombie + Bug -> DarkCrab (avoid Zombie + GiantSlug/Lipsy/Droll -> Mudron when testing family+family)
+        # Any Zombie + Bug -> DarkCrab
         (MonsterSpecies.SPOOKY, MonsterSpecies.CATAPILA, MonsterSpecies.DARKCRAB),
         (MonsterSpecies.MUMMY, MonsterSpecies.BUTTERFLY, MonsterSpecies.DARKCRAB),
         (MonsterSpecies.HORK, MonsterSpecies.ARMYANT, MonsterSpecies.DARKCRAB),
-        # Any Zombie + Devil -> DeadNite (avoid Spooky/Hork + Devil -> Reaper; DarkCrab/MadSpirit + Devil -> NiteWhip)
+        # Any Zombie + Devil -> DeadNite
         (MonsterSpecies.MUMMY, MonsterSpecies.DEMONITE, MonsterSpecies.DEADNITE),
         (MonsterSpecies.PUTREPUP, MonsterSpecies.ARCDEMON, MonsterSpecies.DEADNITE),
         (MonsterSpecies.ROTRAVEN, MonsterSpecies.GREMLIN, MonsterSpecies.DEADNITE),
@@ -1875,14 +1850,14 @@ def test_devil_breeding_combos(
         (MonsterSpecies.SPOOKY, MonsterSpecies.GOLDGOLEM, MonsterSpecies.SHADOW),
         (MonsterSpecies.MUMMY, MonsterSpecies.BALZAK, MonsterSpecies.SHADOW),
         (MonsterSpecies.DARKCRAB, MonsterSpecies.CURSELAMP, MonsterSpecies.SHADOW),
-        # Any Zombie + Dragon -> MadSpirit (avoid NiteWhip: Zombie + MistyWing - MistyWing is Bird)
+        # Any Zombie + Dragon -> MadSpirit
         (MonsterSpecies.SPOOKY, MonsterSpecies.DRAGON, MonsterSpecies.MADSPIRIT),
         (MonsterSpecies.MUMMY, MonsterSpecies.MINIDRAK, MonsterSpecies.MADSPIRIT),
         (MonsterSpecies.PUTREPUP, MonsterSpecies.TORTRAGON, MonsterSpecies.MADSPIRIT),
         # Zombie + MistyWing -> NiteWhip
         (MonsterSpecies.SPOOKY, MonsterSpecies.MISTYWING, MonsterSpecies.NITEWHIP),
         (MonsterSpecies.MUMMY, MonsterSpecies.MISTYWING, MonsterSpecies.NITEWHIP),
-        # DarkCrab/MadSpirit + Devil -> NiteWhip (avoid [Mudron, MadSpirit, ...] + ArcDemon etc -> DeadNoble)
+        # DarkCrab/MadSpirit + Devil -> NiteWhip
         (MonsterSpecies.DARKCRAB, MonsterSpecies.DEMONITE, MonsterSpecies.NITEWHIP),
         (MonsterSpecies.MADSPIRIT, MonsterSpecies.DEMONITE, MonsterSpecies.NITEWHIP),
         # Spooky/Hork + Devil -> Reaper
@@ -1912,7 +1887,7 @@ def test_devil_breeding_combos(
         (MonsterSpecies.MINIDRAK, MonsterSpecies.DEADNOBLE, MonsterSpecies.SKULLGON),
         (MonsterSpecies.TORTRAGON, MonsterSpecies.WHITEKING, MonsterSpecies.SKULLGON),
         (MonsterSpecies.PTERANOD, MonsterSpecies.SERVANT, MonsterSpecies.SKULLGON),
-        # Zombie + [BoxSlime, FangSlime, Tonguella, Yeti, ...] -> Mudron (family+species; avoid Zombie+Slime/Beast/Bird/Plant/Bug generic)
+        # Zombie + [BoxSlime, FangSlime, Tonguella, Yeti, ...] -> Mudron
         (MonsterSpecies.SPOOKY, MonsterSpecies.GIANTSLUG, MonsterSpecies.MUDRON),
         (MonsterSpecies.MUMMY, MonsterSpecies.LIPSY, MonsterSpecies.MUDRON),
         (MonsterSpecies.PUTREPUP, MonsterSpecies.DROLL, MonsterSpecies.MUDRON),
@@ -1947,6 +1922,8 @@ def test_devil_breeding_combos(
         (MonsterSpecies.DEADNITE, MonsterSpecies.SLIMEBORG, MonsterSpecies.BONESLAVE),
         (MonsterSpecies.HORK, MonsterSpecies.LANDOWL, MonsterSpecies.BONESLAVE),
         (MonsterSpecies.MUMMY, MonsterSpecies.GREMLIN, MonsterSpecies.BONESLAVE),
+        # Hork + Hork -> BoneSlave
+        (MonsterSpecies.HORK, MonsterSpecies.HORK, MonsterSpecies.BONESLAVE),
         # [Mummy, DeadNite, Hork, Mudron] + [GulpBeast, Grizzly, ...] -> Skeletor
         (MonsterSpecies.MUMMY, MonsterSpecies.GULPBEAST, MonsterSpecies.SKELETOR),
         (MonsterSpecies.DEADNITE, MonsterSpecies.GRIZZLY, MonsterSpecies.SKELETOR),
@@ -2033,6 +2010,7 @@ def test_devil_breeding_combos(
         "deadnite_slimeborg",
         "hork_landowl",
         "mummy_gremlin",
+        "hork_hork",
         "mummy_gulpbeast",
         "deadnite_grizzly",
         "hork_madcat",
@@ -2044,11 +2022,7 @@ def test_zombie_breeding_combos(
     mate: Species,
     expected: Species,
 ) -> None:
-    """
-    All combos that result in a Zombie-class monster (Rules sheet Zombie section).
-
-    Every expected is Zombie family. Mates from other families appear only as the second argument.
-    """
+    """Breeding pedigree + mate yields expected Zombie result."""
     result = get_breeding_result(pedigree=pedigree, mate=mate)
     assert result == expected
 
@@ -2056,7 +2030,7 @@ def test_zombie_breeding_combos(
 @pytest.mark.parametrize(
     ("pedigree", "mate", "expected"),
     [
-        # Any Material + Slime -> JewelBag (avoid JewelBag + Slime -> Goopi; Material + BoxSlime -> Mimic; Material + Snaily -> EvilPot)
+        # Any Material + Slime -> JewelBag
         (MonsterSpecies.EVILWAND, MonsterSpecies.SLIME, MonsterSpecies.JEWELBAG),
         (MonsterSpecies.MADCANDLE, MonsterSpecies.SPOTSLIME, MonsterSpecies.JEWELBAG),
         (MonsterSpecies.BALZAK, MonsterSpecies.DRAKSLIME, MonsterSpecies.JEWELBAG),
@@ -2067,23 +2041,23 @@ def test_zombie_breeding_combos(
         (MonsterSpecies.JEWELBAG, MonsterSpecies.DRAGON, MonsterSpecies.EVILWAND),
         (MonsterSpecies.MADCANDLE, MonsterSpecies.MINIDRAK, MonsterSpecies.EVILWAND),
         (MonsterSpecies.CURSELAMP, MonsterSpecies.TORTRAGON, MonsterSpecies.EVILWAND),
-        # Any Material + Beast -> MadCandle (avoid Material + Grizzly/Trumpeter/KingLeo/SkulRider -> Roboster; Roboster + KingLeo -> IceMan)
+        # Any Material + Beast -> MadCandle
         (MonsterSpecies.JEWELBAG, MonsterSpecies.ANTEATER, MonsterSpecies.MADCANDLE),
         (MonsterSpecies.EVILWAND, MonsterSpecies.CATFLY, MonsterSpecies.MADCANDLE),
         (MonsterSpecies.BALZAK, MonsterSpecies.PILLOWRAT, MonsterSpecies.MADCANDLE),
-        # Any Material + Bird -> CoilBird (avoid Roboster + Bird -> CurseLamp)
+        # Any Material + Bird -> CoilBird
         (MonsterSpecies.JEWELBAG, MonsterSpecies.DRACKY, MonsterSpecies.COILBIRD),
         (MonsterSpecies.EVILWAND, MonsterSpecies.BULLBIRD, MonsterSpecies.COILBIRD),
         (MonsterSpecies.GOLDGOLEM, MonsterSpecies.PHOENIX, MonsterSpecies.COILBIRD),
-        # Any Material + Plant -> Facer (avoid Material + WingTree -> CurseLamp)
+        # Any Material + Plant -> Facer
         (MonsterSpecies.JEWELBAG, MonsterSpecies.FIREWEED, MonsterSpecies.FACER),
         (MonsterSpecies.EVILWAND, MonsterSpecies.AMBERWEED, MonsterSpecies.FACER),
         (MonsterSpecies.MADCANDLE, MonsterSpecies.FLORAMAN, MonsterSpecies.FACER),
-        # Any Material + Bug -> SpikyBoy (avoid Material + HornBeet/Digster -> StoneMan)
+        # Any Material + Bug -> SpikyBoy
         (MonsterSpecies.JEWELBAG, MonsterSpecies.CATAPILA, MonsterSpecies.SPIKYBOY),
         (MonsterSpecies.EVILWAND, MonsterSpecies.BUTTERFLY, MonsterSpecies.SPIKYBOY),
         (MonsterSpecies.MADCANDLE, MonsterSpecies.ARMYANT, MonsterSpecies.SPIKYBOY),
-        # Any Material + Devil -> MadMirror (avoid Gismo + Devil -> EvilPot; LavaMan/IceMan + Devil -> Balzak)
+        # Any Material + Devil -> MadMirror
         (MonsterSpecies.JEWELBAG, MonsterSpecies.DEMONITE, MonsterSpecies.MADMIRROR),
         (MonsterSpecies.EVILWAND, MonsterSpecies.ARCDEMON, MonsterSpecies.MADMIRROR),
         (MonsterSpecies.CURSELAMP, MonsterSpecies.GREMLIN, MonsterSpecies.MADMIRROR),
@@ -2115,7 +2089,7 @@ def test_zombie_breeding_combos(
         # Gismo + Devil -> EvilPot
         (MonsterSpecies.GISMO, MonsterSpecies.DEMONITE, MonsterSpecies.EVILPOT),
         (MonsterSpecies.GISMO, MonsterSpecies.ARCDEMON, MonsterSpecies.EVILPOT),
-        # Material + Snaily -> EvilPot (avoid JewelBag + Slime -> Goopi when pedigree is JewelBag)
+        # Material + Snaily -> EvilPot
         (MonsterSpecies.MADCANDLE, MonsterSpecies.SNAILY, MonsterSpecies.EVILPOT),
         (MonsterSpecies.EVILWAND, MonsterSpecies.SNAILY, MonsterSpecies.EVILPOT),
         # SpikyBoy + SpikyBoy -> BombCrag
@@ -2123,7 +2097,7 @@ def test_zombie_breeding_combos(
         # Roboster + Bug -> BombCrag
         (MonsterSpecies.ROBOSTER, MonsterSpecies.CATAPILA, MonsterSpecies.BOMBCRAG),
         (MonsterSpecies.ROBOSTER, MonsterSpecies.BUTTERFLY, MonsterSpecies.BOMBCRAG),
-        # IceMan + LavaMan -> GoldGolem (recipe defined as IceMan + LavaMan only, not symmetric)
+        # IceMan + LavaMan -> GoldGolem
         (MonsterSpecies.ICEMAN, MonsterSpecies.LAVAMAN, MonsterSpecies.GOLDGOLEM),
         # Any Material + Boss -> Balzak
         (MonsterSpecies.JEWELBAG, MonsterSpecies.DRACOLORD1, MonsterSpecies.BALZAK),
@@ -2135,7 +2109,7 @@ def test_zombie_breeding_combos(
         # Material + Lipsy -> Voodoll
         (MonsterSpecies.JEWELBAG, MonsterSpecies.LIPSY, MonsterSpecies.VOODOLL),
         (MonsterSpecies.EVILWAND, MonsterSpecies.LIPSY, MonsterSpecies.VOODOLL),
-        # Material + Andreal -> MetalDrak (avoid MetalDrak,Roboster + Dragon -> MetalDrak)
+        # Material + Andreal -> MetalDrak
         (MonsterSpecies.JEWELBAG, MonsterSpecies.ANDREAL, MonsterSpecies.METALDRAK),
         (MonsterSpecies.CURSELAMP, MonsterSpecies.ANDREAL, MonsterSpecies.METALDRAK),
         # MetalDrak,Roboster + Dragon -> MetalDrak
@@ -2150,7 +2124,7 @@ def test_zombie_breeding_combos(
         # MetalDrak + [Skullgon, WhiteKing] -> IceMan
         (MonsterSpecies.METALDRAK, MonsterSpecies.SKULLGON, MonsterSpecies.ICEMAN),
         (MonsterSpecies.METALDRAK, MonsterSpecies.WHITEKING, MonsterSpecies.ICEMAN),
-        # Material + [GulpBeast, Grizzly, Trumpeter, KingLeo, SkulRider] -> Roboster (avoid Material + Beast -> MadCandle)
+        # Material + [GulpBeast, Grizzly, Trumpeter, KingLeo, SkulRider] -> Roboster
         (MonsterSpecies.JEWELBAG, MonsterSpecies.GULPBEAST, MonsterSpecies.ROBOSTER),
         (MonsterSpecies.GOLDGOLEM, MonsterSpecies.GRIZZLY, MonsterSpecies.ROBOSTER),
         (MonsterSpecies.GOLDGOLEM, MonsterSpecies.TRUMPETER, MonsterSpecies.ROBOSTER),
@@ -2278,11 +2252,7 @@ def test_material_breeding_combos(
     mate: Species,
     expected: Species,
 ) -> None:
-    """
-    All combos that result in a Material-class monster (Rules sheet Material section).
-
-    Every expected is Material family. Mates from other families appear only as the second argument.
-    """
+    """Breeding pedigree + mate yields expected Material result."""
     result = get_breeding_result(pedigree=pedigree, mate=mate)
     assert result == expected
 
@@ -2362,10 +2332,6 @@ def test_boss_breeding_combos(
     mate: Species,
     expected: Species,
 ) -> None:
-    """
-    All combos that result in a Boss-class monster (Rules sheet Boss section).
-
-    Every expected is Boss family. Mates from other families appear only as the second argument.
-    """
+    """Breeding pedigree + mate yields expected Boss result."""
     result = get_breeding_result(pedigree=pedigree, mate=mate)
     assert result == expected
